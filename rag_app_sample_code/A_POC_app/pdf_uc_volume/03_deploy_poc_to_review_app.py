@@ -58,6 +58,10 @@ with mlflow.start_run(run_name=POC_CHAIN_RUN_NAME):
 
 # COMMAND ----------
 
+CHAIN_CODE_FILE
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ## Test the chain locally
 
@@ -140,7 +144,7 @@ print(f"\n\nReview App: {deployment_info.review_app_url}")
 
 # COMMAND ----------
 
-user_list = ["eric.peter@databricks.com"]
+user_list = ["felix.flory@databricks.com"]
 
 # Set the permissions.  If successful, there will be no return value.
 agents.set_permissions(model_name=UC_MODEL_NAME, users=user_list, permission_level=agents.PermissionLevel.CAN_QUERY)
