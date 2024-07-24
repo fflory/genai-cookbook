@@ -67,7 +67,7 @@ chain_input = {
     "messages": [
         {
             "role": "user",
-            "content": "What is RAG?", # Replace with a question relevant to your use case
+            "content": "In 2022 Q2, which of JPM's business segements had the highest net income?", # Replace with a question relevant to your use case
         }
     ]
 }
@@ -140,7 +140,7 @@ print(f"\n\nReview App: {deployment_info.review_app_url}")
 
 # COMMAND ----------
 
-user_list = ["eric.peter@databricks.com"]
+user_list = ["felix.flory@databricks.com"]
 
 # Set the permissions.  If successful, there will be no return value.
 agents.set_permissions(model_name=UC_MODEL_NAME, users=user_list, permission_level=agents.PermissionLevel.CAN_QUERY)

@@ -1,5 +1,5 @@
 # Databricks notebook source
-!cp -r /Volumes/field_ai_examples/rag/financebench/* /Volumes/felixflory/rag_felixflory/financebench
+!cp -r /Volumes/field_ai_examples/rag/financebench/* /Volumes/felixflory/rag_felixflory/source_docs
 
 # COMMAND ----------
 
@@ -12,6 +12,11 @@ input_parquet_filename = '/Volumes/felixflory/rag_felixflory/financebench_eval_p
 # COMMAND ----------
 
 # MAGIC %run ./00_global_config
+
+# COMMAND ----------
+
+# output_table = f"{UC_CATALOG}.{UC_SCHEMA}.my_agent_app_evaluation_set"
+# spark.read.parquet(input_parquet_filename).write.mode("overwrite").saveAsTable(EVALUATION_SET_FQN)
 
 # COMMAND ----------
 
