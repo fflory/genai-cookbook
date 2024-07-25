@@ -67,7 +67,7 @@ chain_input = {
     "messages": [
         {
             "role": "user",
-            "content": "In 2022 Q2, which of JPM's business segements had the highest net income?", # Replace with a question relevant to your use case
+            "content": "What was JPMorgan Chase's reported net income for the first quarter of 2021?", # Replace with a question relevant to your use case
         }
     ]
 }
@@ -162,3 +162,7 @@ active_deployments = agents.list_deployments()
 active_deployment = next((item for item in active_deployments if item.model_name == UC_MODEL_NAME), None)
 
 print(f"Review App URL: {active_deployment.review_app_url}")
+
+# COMMAND ----------
+
+# agents.delete_deployment(active_deployment)

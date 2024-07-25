@@ -161,7 +161,7 @@ rag_chain_config = {
         "vector_search_endpoint_name": VECTOR_SEARCH_ENDPOINT,
         # Databricks Model Serving endpoint name
         # This is the generator LLM where your LLM queries are sent.
-        "llm_endpoint_name": "databricks-dbrx-instruct",
+        "llm_endpoint_name": "databricks-meta-llama-3-1-405b-instruct",
     },
     "retriever_config": {
         # Vector Search index that is created by the data pipeline
