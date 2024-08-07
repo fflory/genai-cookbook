@@ -153,7 +153,7 @@ agents.set_permissions(model_name=UC_MODEL_NAME, users=user_list, permission_lev
 # MAGIC
 # MAGIC Alternatively, you can construct the Review App URL as follows:
 # MAGIC
-# MAGIC `https://<your-workspace-url>/ml/reviews/{UC_CATALOG}.{UC_SCHEMA}.{UC_MODEL_NAME}/{UC_MODEL_VERSION_NUMBER}/instructions`
+# MAGIC `https://<your-workspace-url>/ml/review/{UC_CATALOG}.{UC_SCHEMA}.{UC_MODEL_NAME}/{UC_MODEL_VERSION_NUMBER}/instructions`
 
 # COMMAND ----------
 
@@ -165,4 +165,14 @@ print(f"Review App URL: {active_deployment.review_app_url}")
 
 # COMMAND ----------
 
+active_deployment
+
+# COMMAND ----------
+
 # agents.delete_deployment(active_deployment)
+
+# COMMAND ----------
+
+# MAGIC %environment
+# MAGIC "client": "1"
+# MAGIC "base_environment": ""

@@ -118,3 +118,9 @@ display(requests_with_feedback_df.select(
 eval_set = requests_with_feedback_df[["request", "request_id", "expected_response", "expected_retrieved_context", "source_user", "source_tag"]]
 
 eval_set.write.format("delta").mode("overwrite").saveAsTable(EVALUATION_SET_FQN)
+
+# COMMAND ----------
+
+# MAGIC %environment
+# MAGIC "client": "1"
+# MAGIC "base_environment": ""

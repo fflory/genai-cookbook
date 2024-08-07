@@ -456,7 +456,7 @@ print(f"Gold Delta Table w/ chunked files: {get_table_url(destination_tables_con
 # COMMAND ----------
 
 # DBTITLE 1,Testing the Index
-index.similarity_search(columns=["chunked_text", "chunk_id", "path"], query_text="your query text")
+index.similarity_search(columns=["chunked_text", "chunk_id", "path"], query_text="What was JPMorgan Chase's reported net income for the first quarter of 2021?")
 
 # COMMAND ----------
 

@@ -97,6 +97,7 @@ destination_tables_config = {
     "vectorsearch_index_table_name": f"`{UC_CATALOG}`.`{UC_SCHEMA}`.`{RAG_APP_NAME}_poc_chunked_docs_gold_index`",
 }
 destination_tables_config["vectorsearch_index_name"] = destination_tables_config["vectorsearch_index_table_name"].replace("`", "")
+
 # COMMAND ----------
 
 # MAGIC %md
@@ -229,3 +230,9 @@ with open('rag_chain_config.yaml', 'w') as f:
 # COMMAND ----------
 
 # MAGIC %run ../z_shared_utilities
+
+# COMMAND ----------
+
+# MAGIC %environment
+# MAGIC "client": "1"
+# MAGIC "base_environment": ""
