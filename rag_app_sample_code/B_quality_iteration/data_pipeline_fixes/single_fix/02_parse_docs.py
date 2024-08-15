@@ -68,7 +68,7 @@ silver_success_query = (
     .writeStream.trigger(availableNow=True)
     .option(
         "checkpointLocation",
-        f"{destination_tables_config.get('checkpoint_path')}/{destination_tables_config.get('parsed_docs_table_name').split('.')[-1]}",
+        f"{destination_tables_config.get('checkpoint_path')}/{destination_tables_config.get('parsed_docs_table_name').split('.')[-1].replace('`', '')}",
     )
     .toTable(destination_tables_config.get("parsed_docs_table_name"))
 )
@@ -98,9 +98,9 @@ silver_failures_query = (
     df_parsed_quarantine.writeStream.trigger(availableNow=True)
     .option(
         "checkpointLocation",
-        f"{destination_tables_config.get('checkpoint_path')}/{destination_tables_config.get('parsed_docs_table_name').split('.')[-1]}_quarantine",
+        f"{destination_tables_config.get('checkpoint_path')}/{destination_tables_config.get('parsed_docs_table_name').split('.')[-1].replace('`', '')}_quarantine",
     )
-    .toTable(f'{destination_tables_config.get("parsed_docs_table_name")}_quarantine')
+    .toTable(append_to_fq_tablename(destination_tables_config.get("parsed_docs_table_name"), "_quarantine")) 
 )
 
 silver_failures_query.awaitTermination()

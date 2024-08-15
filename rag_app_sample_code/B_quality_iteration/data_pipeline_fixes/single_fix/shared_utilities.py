@@ -61,3 +61,26 @@ def get_or_start_mlflow_run(experiment_name, run_name):
         raise ValueError("There are multiple runs named {run_name} in the experiment {experiment_name}.  Remove the additional runs or choose a different run name.")
     else:
         return mlflow.start_run(run_name=run_name)
+
+# COMMAND ----------
+
+def append_to_fq_tablename(tablename: str, val: str) -> str:
+    """
+    Appends a specified value to the table name, handling fully qualified table names.
+    Use this function if the fully qualified name has tickmarks around each part. 
+
+    Args:
+    tablename (str): The original fully qualified table name.
+    val (str): The value to append to the table name.
+
+    Returns:
+    str: The modified fully qualified table name with the value appended.
+
+    Example:
+    append_to_fq_tablename(destination_tables_config.get("parsed_docs_table_name"), "_quarantine")
+    """
+    
+    _s = tablename.split('.')
+    firsts = ".".join(_s[:-1])
+    last = _s[-1]
+    return ".".join([firsts, f'`{last.replace("`", "")}{val}`'])

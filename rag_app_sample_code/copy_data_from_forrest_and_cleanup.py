@@ -74,9 +74,3 @@ active_deployment
 # _tables_to_delete = _tables_to_delete_df.select("tableName").rdd.map(lambda r: r.tableName).collect()
 # for t in _tables_to_delete:
 #     spark.sql(f"DROP TABLE IF EXISTS {UC_CATALOG}.{UC_SCHEMA}.{t}")
-
-# COMMAND ----------
-
-# MAGIC %environment
-# MAGIC "client": "1"
-# MAGIC "base_environment": ""

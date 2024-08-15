@@ -101,7 +101,7 @@ chunking_query = (
     df_chunked_gold.writeStream.trigger(availableNow=True)
     .option(
         "checkpointLocation",
-        f"{destination_tables_config.get('checkpoint_path')}/{destination_tables_config.get('chunked_docs_table_name').split('.')[-1]}",
+        f"{destination_tables_config.get('checkpoint_path')}/{destination_tables_config.get('chunked_docs_table_name').split('.')[-1].replace('`', '')}",
     )
     .toTable(destination_tables_config.get("chunked_docs_table_name"))
 )
@@ -129,9 +129,9 @@ chunking_quarantine_query = (
     df_chunked_quarantine.writeStream.trigger(availableNow=True)
     .option(
         "checkpointLocation",
-        f"{destination_tables_config.get('checkpoint_path')}/{destination_tables_config.get('chunked_docs_table_name').split('.')[-1]}_quarantine",
+        f"{destination_tables_config.get('checkpoint_path')}/{destination_tables_config.get('chunked_docs_table_name').split('.')[-1].replace('`', '')}_quarantine",
     )
-    .toTable(f'{destination_tables_config.get("chunked_docs_table_name")}_quarantine')
+    .toTable(append_to_fq_tablename(destination_tables_config.get("chunked_docs_table_name"), "_quarantine"))
 )
 chunking_quarantine_query.awaitTermination()
 

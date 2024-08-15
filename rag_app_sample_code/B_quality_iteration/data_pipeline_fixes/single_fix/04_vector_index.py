@@ -30,9 +30,9 @@ run = get_or_start_mlflow_run(MLFLOW_EXPERIMENT_NAME, mlflow_run_name)
 # DBTITLE 1,Get or Create VS endpoint
 client = VectorSearchClient()
 try:
-  vs_endpoint = client.get_endpoint(vectorsearch_config.get("vectorsearch_endpoint_name"))
+  vs_endpoint = client.get_endpoint(VECTOR_SEARCH_ENDPOINT)
 except Exception as e:
-  print(f"Vectorsearch endpoint {vectorsearch_config.get('vectorsearch_endpoint_name')} is not available. Please choose a different endpoint.")
+  print(f"Vectorsearch endpoint {VECTOR_SEARCH_ENDPOINT} is not available. Please choose a different endpoint.")
 
 # COMMAND ----------
 
@@ -48,7 +48,7 @@ except Exception as e:
       index_name=destination_tables_config.get("vectorsearch_index_name"),
       primary_key="chunk_id",
       pipeline_type=vectorsearch_config.get("pipeline_type"),
-      source_table_name=destination_tables_config.get('chunked_docs_table_name'),
+      source_table_name=destination_tables_config.get('chunked_docs_table_name').replace('`', ''),
       embedding_source_column="chunked_text",
       embedding_model_endpoint_name=embedding_config.get("embedding_endpoint_name"),
   )

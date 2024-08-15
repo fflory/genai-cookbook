@@ -50,7 +50,7 @@ df_raw_bronze = (
 # DBTITLE 1,Append new pdf binaries to Bronze Table
 df_raw_bronze.writeStream.trigger(availableNow=True).option(
     "checkpointLocation",
-    f"{destination_tables_config.get('checkpoint_path')}/{destination_tables_config.get('raw_files_table_name').split('.')[-1]}",
+    f"{destination_tables_config.get('checkpoint_path')}/{destination_tables_config.get('raw_files_table_name').split('.')[-1].replace('`', '')}",
 ).toTable(destination_tables_config.get("raw_files_table_name")).awaitTermination()
 
 # COMMAND ----------

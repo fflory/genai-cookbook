@@ -60,6 +60,11 @@ w = WorkspaceClient()
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC data_pipeline_chunk_size_4096
+
+# COMMAND ----------
+
 # MLflow Run name containing the baseline chain + its evaluation metrics
 BASELINE_CHAIN_MLFLOW_RUN_NAME = POC_CHAIN_RUN_NAME
 
@@ -93,7 +98,7 @@ baseline_data_pipeline_config = mlflow.artifacts.load_dict(f"{baseline_run.info.
 
 # COMMAND ----------
 
-DATA_PIPELINE_FIXES_RUN_NAMES = [] # Put data pipeline MLflow run names in this array
+DATA_PIPELINE_FIXES_RUN_NAMES = ["data_pipeline_chunk_size_4096"] # Put data pipeline MLflow run names in this array
 
 
 # COMMAND ----------

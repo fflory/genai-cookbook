@@ -230,9 +230,3 @@ with open('rag_chain_config.yaml', 'w') as f:
 # COMMAND ----------
 
 # MAGIC %run ../z_shared_utilities
-
-# COMMAND ----------
-
-# MAGIC %environment
-# MAGIC "client": "1"
-# MAGIC "base_environment": ""

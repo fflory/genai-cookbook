@@ -170,9 +170,3 @@ active_deployment
 # COMMAND ----------
 
 # agents.delete_deployment(active_deployment)
-
-# COMMAND ----------
-
-# MAGIC %environment
-# MAGIC "client": "1"
-# MAGIC "base_environment": ""

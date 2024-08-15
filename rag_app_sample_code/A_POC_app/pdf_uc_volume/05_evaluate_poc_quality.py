@@ -101,6 +101,7 @@ with mlflow.start_run(run_id=poc_run.info.run_id):
         data=eval_df,
         model=f"runs:/{poc_run.info.run_id}/chain",  # replace `chain` with artifact_path that you used when calling log_model.  By default, this is `chain`.
         model_type="databricks-agent",
+        # extra_metrics=[answer_relevance_metric]
     )
 
 # COMMAND ----------
