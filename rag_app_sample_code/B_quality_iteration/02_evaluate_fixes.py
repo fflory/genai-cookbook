@@ -26,7 +26,7 @@
 
 # COMMAND ----------
 
-# MAGIC %pip install -U -qqqq pyyaml databricks-agents mlflow mlflow-skinny databricks-sdk flashrank==0.2.4
+# MAGIC %pip install -U -qqqq pyyaml databricks-agents mlflow mlflow-skinny databricks-sdk flashrank==0.2.4 databricks-vectorsearch langchain==0.2.11 langchain_core==0.2.23 langchain_community==0.2.10 
 # MAGIC dbutils.library.restartPython()
 
 # COMMAND ----------
@@ -344,6 +344,10 @@ eval_data = [
 
 # COMMAND ----------
 
+CHAIN_CODE_FIXES
+
+# COMMAND ----------
+
 experiments_to_run = []
 
 for experiment_name, experiment_details in CHAIN_CODE_FIXES.items():
@@ -445,14 +449,14 @@ metrics_to_use = [
         "metric": "response/llm_judged/correctness/rating/percentage",
         "higher_is_better": True,
     },
-    {
-        "metric": "chain/total_token_count/average",
-        "higher_is_better": False,
-    },
-    {
-        "metric": "chain/latency_seconds/average",
-        "higher_is_better": False,
-    },
+    # {
+    #     "metric": "chain/total_token_count/average",
+    #     "higher_is_better": False,
+    # },
+    # {
+    #     "metric": "chain/latency_seconds/average",
+    #     "higher_is_better": False,
+    # },
 ]
 
 # Identify the winner for each metric
