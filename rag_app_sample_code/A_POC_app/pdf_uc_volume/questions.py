@@ -20,12 +20,15 @@
 # MAGIC   Therefore, JPMorgan Chase's reported net income for the first quarter of 2021 was $14.3 billion.
 # MAGIC
 # MAGIC
-# MAGIC - Which of JPM's business segments had the lowest net revenue in 2021 Q1? Corporate. 
+# MAGIC - Which of JPM's business segments had the lowest net revenue in 2021 Q1? Corporate.  
 # MAGIC   Its net revenue was -$473 million.
+# MAGIC   financebench_id_00299
+# MAGIC   0b429aca-9e5f-43cd-9220-7f70bdd81025
 # MAGIC
 # MAGIC
 # MAGIC - What is the FY2018 capital expenditure amount (in USD millions) for 3M? Give a response to the question by relying on the details shown in the cash flow statement. 
 # MAGIC   Answer: $1577.00
+# MAGIC   financebench_id_03029
 # MAGIC
 # MAGIC - What is Lockheet Martin's overall employee profile with regard to percentages of women, people of color, veterans and people with disabilities? 
 # MAGIC   1. Women: 23%
@@ -34,6 +37,8 @@
 # MAGIC   4. People with disabilities: 11%
 # MAGIC
 # MAGIC - We need to calculate a reasonable approximation (or exact number if possible) of a financial metric. Basing your judgment by information plainly provided in the balance sheet and the P&L statement, what is Lockheed Martin's FY2020 asset turnover ratio? Asset turnover ratio is defined as: FY2020 revenue / (average total assets between FY2019 and FY2020). Round your answer to two decimal places.
+# MAGIC   financebench_id_04412
+# MAGIC   33d514eb-1d37-4ea8-9222-6ff8eda710c5
 
 # COMMAND ----------
 

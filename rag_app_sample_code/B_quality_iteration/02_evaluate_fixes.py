@@ -203,23 +203,23 @@ Use the following pieces of retrieved context to answer the question. Some piece
 Context: {context}""".strip(),
         },
     },
-    # "safety_guardrails": {
-    #     # This technique ONLY works on Databricks FMAPI pay-per-token models.
-    #     # It requires enrolling the Guardrails Private Preview: https://www.databricks.com/blog/implementing-llm-guardrails-safe-and-responsible-generative-ai-deployment-databricks
-    #     # `databricks-meta-llama-3-70b-instruct`
-    #     # `databricks-mixtral-8x7b-instruct`
-    #     # `databricks-dbrx-instruct`
-    #     "databricks_resources": {
-    #         # Databricks Model Serving endpoint name.
-    #         "llm_endpoint_name": "databricks-meta-llama-3-70b-instruct",
-    #     },
-    #     "llm_config": {
-    #         # Parameters that control how the LLM responds.
-    #         "llm_parameters": {
-    #             "enable_safety_filter": True,
-    #         },
-    #     },
-    # },
+    "safety_guardrails": {
+        # This technique ONLY works on Databricks FMAPI pay-per-token models.
+        # It requires enrolling the Guardrails Private Preview: https://www.databricks.com/blog/implementing-llm-guardrails-safe-and-responsible-generative-ai-deployment-databricks
+        # `databricks-meta-llama-3-70b-instruct`
+        # `databricks-mixtral-8x7b-instruct`
+        # `databricks-dbrx-instruct`
+        "databricks_resources": {
+            # Databricks Model Serving endpoint name.
+            "llm_endpoint_name": "databricks-meta-llama-3-70b-instruct",
+        },
+        "llm_config": {
+            # Parameters that control how the LLM responds.
+            "llm_parameters": {
+                "enable_safety_filter": True,
+            },
+        },
+    },
 }
 
 # COMMAND ----------
@@ -330,6 +330,48 @@ eval_data = [
 
 # COMMAND ----------
 
+import pyspark.sql.functions as F
+
+col_map = {"question": "request", "financebench_id": "request_id", "answer": "expected_response"}
+examples_pass_llm_judgment = [
+  'financebench_id_08286',
+  'financebench_id_00684',
+  'financebench_id_04417',
+  'financebench_id_01981',
+  'financebench_id_00288',
+  'financebench_id_01091',
+  'financebench_id_01290',
+  'financebench_id_10285',
+  'financebench_id_04254',
+  'financebench_id_01244',
+  'financebench_id_09724',
+  'financebench_id_00839',
+  'financebench_id_00723',
+  'financebench_id_04980',
+  'financebench_id_00882',
+  'financebench_id_00746',
+  'financebench_id_04302',
+  'financebench_id_04784']
+question_selection = examples_pass_llm_judgment + [
+  "financebench_id_00299", "financebench_id_03029", "financebench_id_04412"
+  ]
+
+finbench_eval_raw = spark.table("felixflory.rag_felixflory.financebench_eval_set")
+finbench_eval_raw_count = finbench_eval_raw.count()
+sample_rate = 20 / (finbench_eval_raw_count + len(question_selection))
+
+eval_df = (
+  finbench_eval_raw
+  .withColumnsRenamed(col_map)
+  .withColumn("expected_retrieved_context", F.array(F.struct(F.col("doc_uri"))))
+  .select(*(list(col_map.values()) + ["expected_retrieved_context"]))
+  .filter(F.col("request_id").isin(question_selection) | 
+          (F.rand(4345) <= F.lit(sample_rate)))
+)
+display(eval_df)
+
+# COMMAND ----------
+
 # MAGIC %md ## "Compile" each fix into a runnable chain
 # MAGIC
 # MAGIC Create & run a set of "compiled fixes" to run by merging each fix's config with the baseline configuration.
@@ -341,10 +383,6 @@ eval_data = [
 # MAGIC
 # MAGIC The resulting configuration to evaluate will be:
 # MAGIC > `strategy = {'a': {'x': 4, 'y': 2}}`
-
-# COMMAND ----------
-
-CHAIN_CODE_FIXES
 
 # COMMAND ----------
 
@@ -387,6 +425,39 @@ for experiment_name, config_override in CHAIN_CONFIG_FIXES.items():
         "data_pipeline_config": baseline_data_pipeline_config
 
     })
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC Felix added a combination of a pipeline fix with a chain fix
+
+# COMMAND ----------
+
+for run_name in DATA_PIPELINE_FIXES_RUN_NAMES:
+    pipeline_run = get_mlflow_run(experiment_name=MLFLOW_EXPERIMENT_NAME, run_name=run_name)
+    pipeline_chain_config_override = mlflow.artifacts.load_dict(f"{pipeline_run.info.artifact_uri}/chain_config.json")
+    data_pipeline_config = mlflow.artifacts.load_dict(f"{pipeline_run.info.artifact_uri}/data_pipeline_config.json")
+
+    db_merged_config = merge_dicts(baseline_chain_config, pipeline_chain_config_override)
+
+    for experiment_name, config_override in {k:v for k,v in CHAIN_CONFIG_FIXES.items() if k in ['cot_reasoning']}.items():
+        merged_config = merge_dicts(db_merged_config, config_override)
+        experiments_to_run.append({
+            "experiment_name": run_name + "_x_" + experiment_name,
+            "chain_config_override": merged_config,
+            "code_file": baseline_chain_code_file_name,
+            "data_pipeline_config": data_pipeline_config
+
+        })
+
+# COMMAND ----------
+
+print(json.dumps(experiments_to_run[-1], indent=4))
+
+# COMMAND ----------
+
+for experiment in experiments_to_run:
+  print('experiment_name', experiment['experiment_name'], experiment.get("chain_config_override").get("retriever_config").get("vector_search_index"))
 
 # COMMAND ----------
 
@@ -443,6 +514,49 @@ for experiment in experiments_to_run:
 
 # COMMAND ----------
 
+def get_mlflow_run_kwa(experiment_name, run_name, **kwargs):
+    runs = mlflow.search_runs(experiment_names=[experiment_name], filter_string=f"run_name = '{run_name}'", output_format="list", **kwargs)
+
+    if len(runs) != 1:
+        raise ValueError(f"Found {len(runs)} runs with name {run_name}.  {run_name} must identify a single run.  Alternatively, you can adjust this code to search for a run based on `run_id`")
+
+    return runs[0]
+
+# COMMAND ----------
+
+_run = get_mlflow_run_kwa(experiment_name=MLFLOW_EXPERIMENT_NAME, run_name="experiment_cite_sources", order_by=["attributes.start_time desc"], max_results=1)
+metrics = mlflow.get_run(_run.info.run_id).data.metrics
+display(metrics)
+
+# COMMAND ----------
+
+metrics.get("response/llm_judged/correctness/rating/percentage")
+
+# COMMAND ----------
+
+# experiment = experiments_to_run[1]
+# _run = get_mlflow_run_kwa(experiment_name=MLFLOW_EXPERIMENT_NAME, run_name="experiment_"+experiment['experiment_name'], order_by=["attributes.start_time desc"], max_results=1)
+# # eval_results = mlflow.artifacts.load_dict(artifact_uri=_run.info.artifact_uri+"/eval_results.json")
+# # print(eval_results)
+# _metrics = mlflow.artifacts.load_dict(artifact_uri=_run.info.artifact_uri+"/_metrics.json")
+# print(_metrics)
+
+# COMMAND ----------
+
+for config in experiments_to_run:
+    code_file = config['code_file']
+    config_dict = config['chain_config_override']
+    experiment_name = config['experiment_name']
+    data_pipeline_config = config['data_pipeline_config']
+    print(f"Evaluating {experiment_name}...\n----")
+    # print(f"{config_dict}\n----\n\n")
+
+    _run = get_mlflow_run_kwa(experiment_name=MLFLOW_EXPERIMENT_NAME, run_name="experiment_"+config['experiment_name'], order_by=["attributes.start_time desc"], max_results=1)
+    _metrics = mlflow.get_run(_run.info.run_id).data.metrics
+    print(_metrics.get("response/llm_judged/correctness/rating/percentage"))
+
+# COMMAND ----------
+
 # Select metrics to use for comparison
 metrics_to_use = [
     {
@@ -467,7 +581,13 @@ for metric_info in metrics_to_use:
     metric_info['winner'] = 'poc'
     best_score = baseline
     for config in experiments_to_run:
-        metric_score = config["eval_results"].metrics[metric_name]
+        # metric_score = config["eval_results"].metrics[metric_name]
+        ##
+        _run = get_mlflow_run_kwa(experiment_name=MLFLOW_EXPERIMENT_NAME, run_name="experiment_"+config['experiment_name'], order_by=["attributes.start_time desc"], max_results=1)
+        # eval_results = mlflow.artifacts.load_dict(artifact_uri=_run.info.artifact_uri+"/eval_results.json")
+        _metrics = mlflow.get_run(_run.info.run_id).data.metrics
+        metric_score = _metrics.get(metrics_to_use[0].get("metric"))
+        ##
         print(f"   Run {config['experiment_name']}, value: {metric_score}")
         if metric_info['higher_is_better']:
             if metric_score > best_score:

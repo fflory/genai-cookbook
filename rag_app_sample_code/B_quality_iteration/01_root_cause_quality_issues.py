@@ -37,8 +37,16 @@ poc_run = runs[0]
 
 # COMMAND ----------
 
+_run_id = "39d352d69a8d46b99655bc4712288fa7" # 888983576095909
+
+# COMMAND ----------
+
 mc = mlflow.MlflowClient()
-eval_results_df = mc.load_table(experiment_id=poc_run.info.experiment_id, run_ids=[poc_run.info.run_id], artifact_file="eval_results.json")
+eval_results_df = mc.load_table(
+  experiment_id=poc_run.info.experiment_id, 
+  # run_ids=[poc_run.info.run_id],
+  run_ids=[_run_id],
+  artifact_file="eval_results.json")
 display(eval_results_df)
 
 # COMMAND ----------
