@@ -1,5 +1,6 @@
 # Databricks notebook source
-# MAGIC %pip install -U -qqqq install pyyaml
+# MAGIC %pip install -U -qqqq pyyaml
+# MAGIC %restart_python
 
 # COMMAND ----------
 

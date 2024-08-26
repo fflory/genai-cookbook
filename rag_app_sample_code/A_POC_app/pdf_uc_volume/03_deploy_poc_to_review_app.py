@@ -63,6 +63,17 @@ with mlflow.start_run(run_name=POC_CHAIN_RUN_NAME):
 
 # COMMAND ----------
 
+from mlflow.tracking.client import MlflowClient
+
+client = MlflowClient()
+
+model_version_infos = client.search_model_versions(f"name = '{UC_MODEL_NAME}'")
+latest_model_version = max(
+    [model_version_info.version for model_version_info in model_version_infos]
+)
+
+# COMMAND ----------
+
 chain_input = {
     "messages": [
         {
@@ -71,7 +82,8 @@ chain_input = {
         }
     ]
 }
-chain = mlflow.langchain.load_model(logged_chain_info.model_uri)
+# chain = mlflow.langchain.load_model(logged_chain_info.model_uri)
+chain = mlflow.langchain.load_model(f"models:/{UC_MODEL_NAME}/{latest_model_version}")
 chain.invoke(chain_input)
 
 # COMMAND ----------
@@ -110,7 +122,8 @@ print(instructions_to_reviewer)
 mlflow.set_registry_uri('databricks-uc')
 
 # Register the chain to UC
-uc_registered_model_info = mlflow.register_model(model_uri=logged_chain_info.model_uri, name=UC_MODEL_NAME)
+# uc_registered_model_info = mlflow.register_model(model_uri=logged_chain_info.model_uri, name=UC_MODEL_NAME)
+uc_registered_model_info = mlflow.register_model(model_uri=f"models:/{UC_MODEL_NAME}/{latest_model_version}", name=UC_MODEL_NAME)
 
 # Deploy to enable the Review APP and create an API endpoint
 deployment_info = agents.deploy(model_name=UC_MODEL_NAME, model_version=uc_registered_model_info.version)
@@ -159,9 +172,15 @@ agents.set_permissions(model_name=UC_MODEL_NAME, users=user_list, permission_lev
 
 active_deployments = agents.list_deployments()
 
-active_deployment = next((item for item in active_deployments if item.model_name == UC_MODEL_NAME), None)
+# active_deployment = next((item for item in active_deployments if item.model_name == UC_MODEL_NAME), None)
+active_deployment = next((item for item in active_deployments if item.model_name == 'forrest_murray.rag_new.finance-bench-raft'), None)
+
 
 print(f"Review App URL: {active_deployment.review_app_url}")
+
+# COMMAND ----------
+
+# "https://e2-demo-field-eng.cloud.databricks.com/ml/review/forrest_murray.rag_new.inance-bench-raft/1/instructions"
 
 # COMMAND ----------
 
