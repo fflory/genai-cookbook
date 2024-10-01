@@ -36,11 +36,11 @@ dbutils.fs.rm(
 
 # delete table with documents failed during parsing
 spark.sql(
-    f'DROP TABLE IF EXISTS {destination_tables_config.get("parsed_docs_table_name")}_quarantine'
+    f'DROP TABLE IF EXISTS {append_to_fq_tablename(destination_tables_config.get("parsed_docs_table_name"), "_quarantine")}'
 )
 # delete (and thus reset) corresponding checkpoint
 dbutils.fs.rm(
-    f"{destination_tables_config.get('checkpoint_path')}/{destination_tables_config.get('parsed_docs_table_name').split('.')[-1]}_quarantine",
+    f"{destination_tables_config.get('checkpoint_path')}/{destination_tables_config.get('parsed_docs_table_name').split('.')[-1].replace('`', '')}_quarantine",
     True,
 )
 
@@ -51,17 +51,17 @@ dbutils.fs.rm(
 spark.sql(f'DROP TABLE IF EXISTS {destination_tables_config.get("chunked_docs_table_name")}')
 # delete (and thus reset) corresponding checkpoint
 dbutils.fs.rm(
-    f"{destination_tables_config.get('checkpoint_path')}/{destination_tables_config.get('chunked_docs_table_name').split('.')[-1]}",
+    f"{destination_tables_config.get('checkpoint_path')}/{destination_tables_config.get('chunked_docs_table_name').split('.')[-1].replace('`', '')}",
     True,
 )
 
 # delete table with documents failed during chunking
 spark.sql(
-    f'DROP TABLE IF EXISTS {destination_tables_config.get("chunked_docs_table_name")}_quarantine'
+    f'DROP TABLE IF EXISTS {append_to_fq_tablename(destination_tables_config.get("chunked_docs_table_name"), "_quarantine")}'
 )
 # delete (and thus reset) corresponding checkpoint
 dbutils.fs.rm(
-    f"{destination_tables_config.get('checkpoint_path')}/{destination_tables_config.get('chunked_docs_table_name').split('.')[-1]}_quarantine",
+    f"{destination_tables_config.get('checkpoint_path')}/{destination_tables_config.get('chunked_docs_table_name').split('.')[-1].replace('`', '')}_quarantine",
     True,
 )
 

@@ -56,15 +56,15 @@ user_name = w.current_user.me().user_name.split("@")[0].replace(".", "")
 
 # UC Catalog & Schema where outputs tables/indexs are saved
 # If this catalog/schema does not exist, you need create catalog/schema permissions.
-UC_CATALOG = f'{user_name}_catalog'
-UC_SCHEMA = f'rag_{user_name}'
+UC_CATALOG = "felixflory" # f'{user_name}_catalog'
+UC_SCHEMA = f'rag_10m_demo'
 
 # UC Model name where the POC chain is logged
 UC_MODEL_NAME = f"{UC_CATALOG}.{UC_SCHEMA}.{user_name}_agent_quick_start"
 
 # Vector Search endpoint where index is loaded
 # If this does not exist, it will be created
-VECTOR_SEARCH_ENDPOINT = f'{user_name}_vector_search'
+VECTOR_SEARCH_ENDPOINT = "one-env-shared-endpoint-11" #f'{user_name}_vector_search'
 
 # COMMAND ----------
 
@@ -116,8 +116,8 @@ validate_vector_search_endpoint_exists(VECTOR_SEARCH_ENDPOINT)
 # COMMAND ----------
 
 # UC locations to store the chunked documents & index
-CHUNKS_DELTA_TABLE = f"`{UC_CATALOG}`.`{UC_SCHEMA}`.databricks_docs_chunked2"
-CHUNKS_VECTOR_INDEX = f"`{UC_CATALOG}`.`{UC_SCHEMA}`.databricks_docs_chunked_index2"
+CHUNKS_DELTA_TABLE = f"`{UC_CATALOG}`.`{UC_SCHEMA}`.databricks_docs_chunked2".replace("`", "")
+CHUNKS_VECTOR_INDEX = f"`{UC_CATALOG}`.`{UC_SCHEMA}`.databricks_docs_chunked_index2".replace("`", "")
 
 # COMMAND ----------
 
