@@ -8,3 +8,5 @@ _l = agents.list_deployments()
 [d.model_name for d in _l if "felix" in d.model_name]
 # agents.delete_deployment(UC_MODEL_NAME)
 ```
+
+I deleted the deployment and the inference tables on e2-demo 
