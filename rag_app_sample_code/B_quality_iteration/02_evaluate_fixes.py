@@ -26,7 +26,7 @@
 
 # COMMAND ----------
 
-# MAGIC %pip install -U -qqqq pyyaml databricks-agents mlflow mlflow-skinny databricks-sdk flashrank==0.2.4
+# MAGIC %pip install -U -qqqq pyyaml databricks-agents mlflow mlflow-skinny databricks-sdk flashrank==0.2.4 databricks-vectorsearch langchain==0.2.11 langchain_core==0.2.23 langchain_community==0.2.10
 # MAGIC dbutils.library.restartPython()
 
 # COMMAND ----------
@@ -93,7 +93,7 @@ baseline_data_pipeline_config = mlflow.artifacts.load_dict(f"{baseline_run.info.
 
 # COMMAND ----------
 
-DATA_PIPELINE_FIXES_RUN_NAMES = [] # Put data pipeline MLflow run names in this array
+DATA_PIPELINE_FIXES_RUN_NAMES = ['data_pipeline_chunk_size_4096'] # Put data pipeline MLflow run names in this array
 
 
 # COMMAND ----------
@@ -147,14 +147,14 @@ CHAIN_CONFIG_FIXES = {
             },
         }
     },
-    "more_prompt_instructions": {
-        "llm_config": {
-            # As a toy example, we add "Every time you respond, say "I love Databricks".  Explain every concept like the user is 5 years old." to the default prompt.
-            "llm_system_prompt_template": """You are an assistant that answers questions. Use the following pieces of retrieved context to answer the question. Some pieces of context may be irrelevant, in which case you should not use them to form the answer.  Every time you respond, say "I love Databricks".  Explain every concept like the user is 5 years old.
+#     "more_prompt_instructions": {
+#         "llm_config": {
+#             # As a toy example, we add "Every time you respond, say "I love Databricks".  Explain every concept like the user is 5 years old." to the default prompt.
+#             "llm_system_prompt_template": """You are an assistant that answers questions. Use the following pieces of retrieved context to answer the question. Some pieces of context may be irrelevant, in which case you should not use them to form the answer.  Every time you respond, say "I love Databricks".  Explain every concept like the user is 5 years old.
 
-Context: {context}""".strip(),
-        },
-    },
+# Context: {context}""".strip(),
+#         },
+#     },
     "change_context_format": {
         "retriever_config": {
             # Prompt template used to format the retrieved information to present to the LLM to help in answering the user's question.
@@ -166,7 +166,7 @@ Context: {context}""".strip(),
         "retriever_config": {
             "parameters": {
                 # Number of search results that the retriever returns.  Increase or decrease.
-                "k": 5,
+                "k": 3,
                 # Type of search to run
                 # Semantic search: `ann`
                 # Hybrid search (keyword + sementic search): `hybrid`
@@ -174,20 +174,20 @@ Context: {context}""".strip(),
             },
         },
     },
-    "cite_sources": {  # Use this template to ask your bot to cite its' sources in its' response.
-        "retriever_config": {
-            # Prompt template used to format the retrieved information to present to the LLM to help in answering the user's question.
-            # {document_uri} and {chunk_text} are available.
-            # If you need additional variables, you can modify the chain's code.
-            "chunk_template": "Source document: {document_uri}\nPassage: {chunk_text}\n\n",
-        },
-        "llm_config": {
-            # Ask the LLM to cite its' sources
-            "llm_system_prompt_template": """You are an assistant that answers questions. Use the following pieces of retrieved context to answer the question. Some pieces of context may be irrelevant, in which case you should not use them to form the answer.  Please cite your sources for each part of your answer.
+#     "cite_sources": {  # Use this template to ask your bot to cite its' sources in its' response.
+#         "retriever_config": {
+#             # Prompt template used to format the retrieved information to present to the LLM to help in answering the user's question.
+#             # {document_uri} and {chunk_text} are available.
+#             # If you need additional variables, you can modify the chain's code.
+#             "chunk_template": "Source document: {document_uri}\nPassage: {chunk_text}\n\n",
+#         },
+#         "llm_config": {
+#             # Ask the LLM to cite its' sources
+#             "llm_system_prompt_template": """You are an assistant that answers questions. Use the following pieces of retrieved context to answer the question. Some pieces of context may be irrelevant, in which case you should not use them to form the answer.  Please cite your sources for each part of your answer.
 
-Context: {context}""".strip(),
-        },
-    },
+# Context: {context}""".strip(),
+#         },
+#     },
     "cot_reasoning": {
         "llm_config": {
             # Ask the LLM to reason before responding
@@ -198,23 +198,23 @@ Use the following pieces of retrieved context to answer the question. Some piece
 Context: {context}""".strip(),
         },
     },
-    # "safety_guardrails": {
-    #     # This technique ONLY works on Databricks FMAPI pay-per-token models.
-    #     # It requires enrolling the Guardrails Private Preview: https://www.databricks.com/blog/implementing-llm-guardrails-safe-and-responsible-generative-ai-deployment-databricks
-    #     # `databricks-meta-llama-3-70b-instruct`
-    #     # `databricks-mixtral-8x7b-instruct`
-    #     # `databricks-dbrx-instruct`
-    #     "databricks_resources": {
-    #         # Databricks Model Serving endpoint name.
-    #         "llm_endpoint_name": "databricks-meta-llama-3-70b-instruct",
-    #     },
-    #     "llm_config": {
-    #         # Parameters that control how the LLM responds.
-    #         "llm_parameters": {
-    #             "enable_safety_filter": True,
-    #         },
-    #     },
-    # },
+    "safety_guardrails": {
+        # This technique ONLY works on Databricks FMAPI pay-per-token models.
+        # It requires enrolling the Guardrails Private Preview: https://www.databricks.com/blog/implementing-llm-guardrails-safe-and-responsible-generative-ai-deployment-databricks
+        # `databricks-meta-llama-3-70b-instruct`
+        # `databricks-mixtral-8x7b-instruct`
+        # `databricks-dbrx-instruct`
+        "databricks_resources": {
+            # Databricks Model Serving endpoint name.
+            "llm_endpoint_name": "databricks-meta-llama-3-70b-instruct",
+        },
+        "llm_config": {
+            # Parameters that control how the LLM responds.
+            "llm_parameters": {
+                "enable_safety_filter": True,
+            },
+        },
+    },
 }
 
 # COMMAND ----------
@@ -286,42 +286,47 @@ CHAIN_CODE_FIXES = {
 
 # COMMAND ----------
 
+# MAGIC %run ../A_POC_app/pdf_uc_volume/04_create_evaluation_set_financebench
+
+# COMMAND ----------
+
 # Load from the curated evaluation set's Delta Table
 
-df = spark.table(EVALUATION_SET_FQN)
-eval_df = df.toPandas()
+# df = spark.table(EVALUATION_SET_FQN)
+# eval_df = df.toPandas()
+eval_df = eval_df.toPandas()
 display(eval_df)
 
 # COMMAND ----------
 
-# If you do not have an evaluation set, and want to evaluate using a manually curated set of questions, you can use the structure below.
+# # If you do not have an evaluation set, and want to evaluate using a manually curated set of questions, you can use the structure below.
 
-eval_data = [
-    {
-        ### REQUIRED
-        # Question that is asked by the user
-        "request": "What is the difference between reduceByKey and groupByKey in Spark?",
+# eval_data = [
+#     {
+#         ### REQUIRED
+#         # Question that is asked by the user
+#         "request": "What is the difference between reduceByKey and groupByKey in Spark?",
 
-        ### OPTIONAL
-        # Optional, user specified to identify each row
-        "request_id": "your-request-id",
-        # Optional: correct response to the question
-        # If provided, Agent Evaluation can compute additional metrics.
-        "expected_response": "There's no significant difference.",
-        # Optional: Which documents should be retrieved.
-        # If provided, Agent Evaluation can compute additional metrics.
-        "expected_retrieved_context": [
-            {
-                # URI of the relevant document to answer the request
-                # Must match the contents of `document_uri` in your chain config / Vec
-                "doc_uri": "doc_uri_2_1",
-            },
-        ],
-    }
-]
+#         ### OPTIONAL
+#         # Optional, user specified to identify each row
+#         "request_id": "your-request-id",
+#         # Optional: correct response to the question
+#         # If provided, Agent Evaluation can compute additional metrics.
+#         "expected_response": "There's no significant difference.",
+#         # Optional: Which documents should be retrieved.
+#         # If provided, Agent Evaluation can compute additional metrics.
+#         "expected_retrieved_context": [
+#             {
+#                 # URI of the relevant document to answer the request
+#                 # Must match the contents of `document_uri` in your chain config / Vec
+#                 "doc_uri": "doc_uri_2_1",
+#             },
+#         ],
+#     }
+# ]
 
-# Uncomment this row to use the above data instead of your evaluation set
-# eval_df = pd.DataFrame(eval_data)
+# # Uncomment this row to use the above data instead of your evaluation set
+# # eval_df = pd.DataFrame(eval_data)
 
 # COMMAND ----------
 
@@ -434,20 +439,28 @@ for experiment in experiments_to_run:
 
 # COMMAND ----------
 
+[config['experiment_name'] for config in experiments_to_run if config['experiment_name'] not in ['data_pipeline_chunk_size_4096', 'safety_guardrails']]
+
+# COMMAND ----------
+
+_experiments_to_run = [config for config in experiments_to_run if config['experiment_name'] not in ['data_pipeline_chunk_size_4096', 'safety_guardrails']]
+
+# COMMAND ----------
+
 # Select metrics to use for comparison
 metrics_to_use = [
     {
         "metric": "response/llm_judged/correctness/rating/percentage",
         "higher_is_better": True,
     },
-    {
-        "metric": "chain/total_token_count/average",
-        "higher_is_better": False,
-    },
-    {
-        "metric": "chain/latency_seconds/average",
-        "higher_is_better": False,
-    },
+    # {
+    #     "metric": "chain/total_token_count/average",
+    #     "higher_is_better": False,
+    # },
+    # {
+    #     "metric": "chain/latency_seconds/average",
+    #     "higher_is_better": False,
+    # },
 ]
 
 # Identify the winner for each metric
@@ -457,7 +470,7 @@ for metric_info in metrics_to_use:
     print(f"Checking for {metric_name}, POC baseline value: {baseline}")
     metric_info['winner'] = 'poc'
     best_score = baseline
-    for config in experiments_to_run:
+    for config in _experiments_to_run:
         metric_score = config["eval_results"].metrics[metric_name]
         print(f"   Run {config['experiment_name']}, value: {metric_score}")
         if metric_info['higher_is_better']:
@@ -472,9 +485,9 @@ for metric_info in metrics_to_use:
 
 # Identify the best chain overall
 poc_wins = count_wins("poc", metrics_to_use)
-for config in experiments_to_run:
+for config in _experiments_to_run:
     config['wins'] = count_wins(config['experiment_name'], metrics_to_use)
-best_tested_config = max(experiments_to_run, key=operator.itemgetter('wins'))
+best_tested_config = max(_experiments_to_run, key=operator.itemgetter('wins'))
 if poc_wins>= best_tested_config['wins']:
     winner = 'poc'
 else:

@@ -1,0 +1,32 @@
+databricks_resources:
+  llm_endpoint_name: databricks-meta-llama-3-1-405b-instruct
+  vector_search_endpoint_name: one-env-shared-endpoint-11
+input_example:
+  messages:
+  - content: What was Walmart's total revenue in 2019?
+    role: user
+llm_config:
+  llm_parameters:
+    max_tokens: 1500
+    temperature: 0.01
+  llm_system_prompt_template: "You are an AI assistant with access to a wide database\
+    \ of SEC filings. Your task is to retrieve, analyze, and summarize information\
+    \ from relevant filings (e.g., 10-K, 10-Q, 8-K, S-1) based on the user\u2019s\
+    \ query. Provide detailed responses to questions on corporate financials, executive\
+    \ compensation, risk factors, management discussion & analysis, stock performance,\
+    \ and any significant changes or announcements. When applicable, cite the specific\
+    \ sections and dates of the filings. Some pieces of context may be irrelevant,\
+    \ in which case you should not use them to form the answer.\n\nContext: {context}"
+retriever_config:
+  chunk_template: 'Passage: {chunk_text}
+
+    '
+  data_pipeline_tag: poc
+  parameters:
+    k: 5
+    query_type: ann
+  schema:
+    chunk_text: chunked_text
+    document_uri: path
+    primary_key: chunk_id
+  vector_search_index: felixflory.cookbook_felix_october.felix_cb_oct_poc_chunked_docs_gold_index

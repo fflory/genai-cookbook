@@ -97,6 +97,7 @@ destination_tables_config = {
     "vectorsearch_index_table_name": f"`{UC_CATALOG}`.`{UC_SCHEMA}`.`{RAG_APP_NAME}_poc_chunked_docs_gold_index`",
 }
 destination_tables_config["vectorsearch_index_name"] = destination_tables_config["vectorsearch_index_table_name"].replace("`", "")
+
 # COMMAND ----------
 
 # MAGIC %md
@@ -161,7 +162,7 @@ rag_chain_config = {
         "vector_search_endpoint_name": VECTOR_SEARCH_ENDPOINT,
         # Databricks Model Serving endpoint name
         # This is the generator LLM where your LLM queries are sent.
-        "llm_endpoint_name": "databricks-dbrx-instruct",
+        "llm_endpoint_name": "databricks-meta-llama-3-1-405b-instruct",
     },
     "retriever_config": {
         # Vector Search index that is created by the data pipeline
@@ -191,7 +192,7 @@ rag_chain_config = {
     },
     "llm_config": {
         # Define a template for the LLM prompt.  This is how the RAG chain combines the user's question and the retrieved context.
-        "llm_system_prompt_template": """You are an assistant that answers questions. Use the following pieces of retrieved context to answer the question. Some pieces of context may be irrelevant, in which case you should not use them to form the answer.
+        "llm_system_prompt_template": """You are an AI assistant with access to a wide database of SEC filings. Your task is to retrieve, analyze, and summarize information from relevant filings (e.g., 10-K, 10-Q, 8-K, S-1) based on the user’s query. Provide detailed responses to questions on corporate financials, executive compensation, risk factors, management discussion & analysis, stock performance, and any significant changes or announcements. When applicable, cite the specific sections and dates of the filings. Some pieces of context may be irrelevant, in which case you should not use them to form the answer.
 
 Context: {context}""".strip(),
         # Parameters that control how the LLM responds.
@@ -201,7 +202,7 @@ Context: {context}""".strip(),
         "messages": [
             {
                 "role": "user",
-                "content": "What is RAG?",
+                "content": "What was Walmart's total revenue in 2019?",
             },
         ]
     },

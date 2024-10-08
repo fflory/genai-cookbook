@@ -175,6 +175,14 @@ poc_config = mlflow.artifacts.load_dict(f"{poc_run.info.artifact_uri}/data_pipel
 
 # COMMAND ----------
 
+poc_config
+
+# COMMAND ----------
+
+configuration
+
+# COMMAND ----------
+
 # Show the differences
 differences = compare_dicts(poc_config, configuration)
 for item in differences:
@@ -197,11 +205,11 @@ mlflow_run_name = f"data_pipeline_{config_short_name}"
 # Names of the output Delta Tables tables & Vector Search index
 destination_tables_config = {
     # Staging table with the raw files & metadata
-    "raw_files_table_name": f"`{UC_CATALOG}`.`{UC_SCHEMA}`.`{config_short_name}_raw_files_bronze`",
+    "raw_files_table_name": f"`{UC_CATALOG}`.`{UC_SCHEMA}`.`{config_short_name}_raw_files_bronze`".replace("`", ""),
     # Parsed documents
-    "parsed_docs_table_name": f"`{UC_CATALOG}`.`{UC_SCHEMA}`.`{config_short_name}_parsed_docs_silver`",
+    "parsed_docs_table_name": f"`{UC_CATALOG}`.`{UC_SCHEMA}`.`{config_short_name}_parsed_docs_silver`".replace("`", ""),
     # Chunked documents that are loaded into the Vector Index
-    "chunked_docs_table_name": f"`{UC_CATALOG}`.`{UC_SCHEMA}`.`{config_short_name}_chunked_docs_gold`",
+    "chunked_docs_table_name": f"`{UC_CATALOG}`.`{UC_SCHEMA}`.`{config_short_name}_chunked_docs_gold`".replace("`", ""),
     # Destination Vector Index
     "vectorsearch_index_name": f"{UC_CATALOG}.{UC_SCHEMA}.{config_short_name}_chunked_docs_gold_index",
     # Streaming checkpoints, used to only process each file once
