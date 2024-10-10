@@ -93,7 +93,7 @@ baseline_data_pipeline_config = mlflow.artifacts.load_dict(f"{baseline_run.info.
 
 # COMMAND ----------
 
-DATA_PIPELINE_FIXES_RUN_NAMES = ['data_pipeline_chunk_size_4096'] # Put data pipeline MLflow run names in this array
+DATA_PIPELINE_FIXES_RUN_NAMES = []#['data_pipeline_chunk_size_4096'] # Put data pipeline MLflow run names in this array
 
 
 # COMMAND ----------
@@ -248,28 +248,28 @@ Context: {context}""".strip(),
 # COMMAND ----------
 
 CHAIN_CODE_FIXES = {
-    # "reranker": {
-    #     # `single_turn_rag_chain_reranker` or `multi_turn_rag_chain_reranker`
-    #     "chain_code_file": "single_turn_rag_chain_reranker", 
-    #     "chain_configuration_override": {
-    #         "retriever_config": {
-    #             "parameters": {
-    #                 # Number of search results that the retriever returns before re-ranking
-    #                 "k": 20
-    #             },
-    #             "reranker": {
-    #                 "k_to_return_after_reranking": 5,
-    #                 # Model options from: https://github.com/PrithivirajDamodaran/FlashRank
-    #                 # ms-marco-TinyBERT-L-2-v2
-    #                 # ms-marco-MiniLM-L-12-v2
-    #                 # rank-T5-flan
-    #                 # ms-marco-MultiBERT-L-12
-    #                 # ce-esci-MiniLM-L12-v2 FT
-    #                 "model": "ms-marco-MultiBERT-L-12",
-    #             },
-    #         }
-    #     },
-    # }
+    "reranker": {
+        # `single_turn_rag_chain_reranker` or `multi_turn_rag_chain_reranker`
+        "chain_code_file": "single_turn_rag_chain_reranker", 
+        "chain_configuration_override": {
+            "retriever_config": {
+                "parameters": {
+                    # Number of search results that the retriever returns before re-ranking
+                    "k": 20
+                },
+                "reranker": {
+                    "k_to_return_after_reranking": 5,
+                    # Model options from: https://github.com/PrithivirajDamodaran/FlashRank
+                    # ms-marco-TinyBERT-L-2-v2
+                    # ms-marco-MiniLM-L-12-v2
+                    # rank-T5-flan
+                    # ms-marco-MultiBERT-L-12
+                    # ce-esci-MiniLM-L12-v2 FT
+                    "model": "ms-marco-MultiBERT-L-12",
+                },
+            }
+        },
+    }
 }
 
 # COMMAND ----------
@@ -383,6 +383,34 @@ for experiment_name, config_override in CHAIN_CONFIG_FIXES.items():
         "data_pipeline_config": baseline_data_pipeline_config
 
     })
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC Felix added a combination of a pipeline fix with a chain fix
+
+# COMMAND ----------
+
+# for run_name in DATA_PIPELINE_FIXES_RUN_NAMES:
+#     pipeline_run = get_mlflow_run(experiment_name=MLFLOW_EXPERIMENT_NAME, run_name=run_name)
+#     pipeline_chain_config_override = mlflow.artifacts.load_dict(f"{pipeline_run.info.artifact_uri}/chain_config.json")
+#     data_pipeline_config = mlflow.artifacts.load_dict(f"{pipeline_run.info.artifact_uri}/data_pipeline_config.json")
+
+#     db_merged_config = merge_dicts(baseline_chain_config, pipeline_chain_config_override)
+
+#     for experiment_name, config_override in {k:v for k,v in CHAIN_CONFIG_FIXES.items() if k in ['cot_reasoning']}.items():
+#         merged_config = merge_dicts(db_merged_config, config_override)
+#         experiments_to_run.append({
+#             "experiment_name": run_name + "_x_" + experiment_name,
+#             "chain_config_override": merged_config,
+#             "code_file": baseline_chain_code_file_name,
+#             "data_pipeline_config": data_pipeline_config
+
+#         })
+
+# COMMAND ----------
+
+# print(json.dumps(experiments_to_run[-1], indent=4))
 
 # COMMAND ----------
 
