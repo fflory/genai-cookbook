@@ -365,6 +365,8 @@ chunked_files_df = chunked_files_df.filter(chunked_files_df.chunked.chunker_stat
     func.md5(func.col("chunked_text")).alias("chunk_id")
 )
 
+display(chunked_files_df)
+
 # Write to Delta Table
 chunked_files_df.write.mode("overwrite").option("overwriteSchema", "true").saveAsTable(
     destination_tables_config["chunked_docs_table_name"]

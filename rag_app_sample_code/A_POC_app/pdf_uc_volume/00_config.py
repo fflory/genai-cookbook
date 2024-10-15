@@ -52,7 +52,8 @@ data_pipeline_config = {
         "embedding_endpoint_name": "databricks-gte-large-en",
         "embedding_tokenizer": {
             # Name of the embedding model that the tokenizer recognizes
-            "tokenizer_model_name": "Alibaba-NLP/gte-large-en-v1.5",
+            # "tokenizer_model_name": "Alibaba-NLP/gte-large-en-v1.5",
+            "tokenizer_model_name": "/Volumes/felixflory/cookbook_felix_october/tokenizer/gte-large-en-v1.5",
             # Name of the tokenizer, either `hugging_face` or `tiktoken`
             "tokenizer_source": "hugging_face",
         },
