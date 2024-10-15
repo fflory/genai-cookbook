@@ -78,11 +78,11 @@ mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
 
 # Vector Search endpoint where index is loaded
 # If this does not exist, it will be created
-VECTOR_SEARCH_ENDPOINT = f"{user_name}_vector_search"
+VECTOR_SEARCH_ENDPOINT = "one-env-shared-endpoint-12" # f"{user_name}_vector_search"
 
 # Source location for documents
 # You need to create this location and add files
-SOURCE_UC_VOLUME = f"/Volumes/{UC_CATALOG}/{UC_SCHEMA}/source_docs"
+SOURCE_UC_VOLUME = "/Volumes/felixflory/rag_felixflory/source_docs" #  f"/Volumes/{UC_CATALOG}/{UC_SCHEMA}/source_docs"
 
 # Names of the output Delta Tables tables & Vector Search index
 

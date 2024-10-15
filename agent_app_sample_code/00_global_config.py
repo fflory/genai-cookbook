@@ -34,13 +34,13 @@ user_name = user_email.split("@")[0].replace(".", "").lower()[:35]
 # COMMAND ----------
 
 # The name of the Agent.  This is used to name the agent's UC model and prepended to the output Delta Tables + Vector Indexes
-AGENT_NAME = "my_agent_app"
+AGENT_NAME = "felix_cb_oct_agent"
 
 # UC Catalog & Schema where outputs tables/indexes are saved
 # By default, will use the current user name to create a unique UC catalog/schema & vector search endpoint
 # If this catalog/schema does not exist, you need create catalog/schema permissions.
-UC_CATALOG = f"{user_name}_catalog"
-UC_SCHEMA = f"cookbook"
+UC_CATALOG = f"{user_name}"
+UC_SCHEMA = f"cookbook_felix_october_agent"
 
 ## UC Model name where the Agent's model is logged
 UC_MODEL_NAME = f"{UC_CATALOG}.{UC_SCHEMA}.{AGENT_NAME}"
@@ -60,7 +60,7 @@ UC_MODEL_NAME = f"{UC_CATALOG}.{UC_SCHEMA}.{AGENT_NAME}"
 ##### We suggest accepting these defaults unless you need to change them. ######
 ############################
 
-EVALUATION_SET_FQN = f"`{UC_CATALOG}`.`{UC_SCHEMA}`.`{AGENT_NAME}_evaluation_set`"
+EVALUATION_SET_FQN = "felixflory.rag_felixflory.my_agent_app_evaluation_set" # f"`{UC_CATALOG}`.`{UC_SCHEMA}`.{RAG_APP_NAME}_evaluation_set"
 
 # MLflow experiment name
 # Using the same MLflow experiment for a single app allows you to compare runs across Notebooks

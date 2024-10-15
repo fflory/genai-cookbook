@@ -128,7 +128,7 @@ agent = AgentWithRetriever()
 # 1st turn of converastion
 first_turn_input = {
     "messages": [
-        {"role": "user", "content": f"what is lakehouse monitoring?"},
+        {"role": "user", "content": f"what was walmarts revenue in 2019?"},
     ]
 }
 
@@ -141,6 +141,16 @@ new_messages.append({"role": "user", "content": f"how do i use it?"})
 second_turn_input = {"messages": new_messages}
 response = agent.predict(model_input=second_turn_input)
 print(response["content"])
+
+# COMMAND ----------
+
+# agent.retriever_tool.similarity_search("what is walmart's revenue in 2019?")
+# agent.get_messages_array(model_input=first_turn_input)
+# agent.tool_functions.get("retrieve_documents")
+# agent.chat_history # None
+# agent.config._read_config()
+# agent.config.get("llm_config").get("llm_system_prompt_template")
+agent.recursively_call_and_run_tools(max_iter=3,messages=first_turn_input["messages"])
 
 # COMMAND ----------
 
