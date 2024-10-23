@@ -400,7 +400,7 @@ vsc = VectorSearchClient(disable_notice=True)
 # COMMAND ----------
 
 # DBTITLE 1,Index Management Workflow
-force_delete = False
+force_delete = True
 
 def find_index(endpoint_name, index_name):
     all_indexes = vsc.list_indexes(name=VECTOR_SEARCH_ENDPOINT).get("vector_indexes", [])
@@ -428,6 +428,10 @@ if create_index:
         embedding_source_column="chunked_text",
         embedding_model_endpoint_name=embedding_config['embedding_endpoint_name']
     )
+
+tag_delta_table(destination_tables_config["vectorsearch_index_table_name"], data_pipeline_config)
+
+# COMMAND ----------
 
 tag_delta_table(destination_tables_config["vectorsearch_index_table_name"], data_pipeline_config)
 
