@@ -1,0 +1,264 @@
+// first call to LLM to select the tool and execute it
+// model_input = first_turn_input
+{'messages': [{'role': 'user',
+   'content': 'what was walmarts revenue in 2019?'}]}
+
+// inputs = 
+{'messages': [{'role': 'system',
+   'content': "You are a helpful assistant that answers questions by calling tools.  Provide responses ONLY based on the information from tools that are explictly specified to you.  If you do not have a relevant tool for a question, respond with 'Sorry, I'm not trained to answer that question'."},
+  {'role': 'user', 'content': 'what was walmarts revenue in 2019?'}],
+ 'tools': [{'type': 'function',
+   'function': {'name': 'retrieve_documents',
+    'description': "Search for documents that are relevant to a user's query about the SEC filings.",
+    'parameters': {'type': 'object',
+     'properties': {'query': {'type': 'string',
+       'description': 'The query to find documents about.'}},
+     'required': ['query']}}}],
+ 'max_tokens': 1500,
+ 'temperature': 0.01}
+
+// response
+{'id': 'chatcmpl_2c50af6d-0439-4bf3-98a9-2cf9f258b67b',
+ 'object': 'chat.completion',
+ 'created': 1729457585,
+ 'model': 'meta-llama-3.1-70b-instruct-082724',
+ 'choices': [{'index': 0,
+   'message': {'role': 'assistant',
+    'content': None,
+    'tool_calls': [{'id': 'call_7751dd98-93cb-4c32-a5f7-a3a746f5e740',
+      'type': 'function',
+      'function': {'name': 'retrieve_documents',
+       'arguments': '{"query": "Walmart revenue 2019"}'}}]},
+   'finish_reason': 'tool_calls',
+   'logprobs': None}],
+ 'usage': {'prompt_tokens': 810, 'completion_tokens': 20, 'total_tokens': 830}}
+
+// call the function
+// print(tool_calls)
+[{'id': 'call_06aa252c-f94f-491d-9b49-f07f26baa1dc', 'type': 'function', 'function': {'name': 'retrieve_documents', 'arguments': '{"query": "Walmart revenue 2019"}'}}]
+// result = the_function(**args)
+// print(results)
+Use the following pieces of retrieved context to answer the question.
+Only use the passages from context that are relevant to the query to answer the question, ignore the irrelevant passages.  When responding, cite your source, referring to the passage by the columns in the passage's metadata.
+
+Context: Passage text: Walmart U.S. Segment 
+ Fiscal
+Years
+Ended
+January
+31, (Amounts in millions, except unit counts)
+ 2019  2018  2017 Net sales
+ $331,666  $318,477  $307,833 Percentage change from comparable period
+...
+Passage metadata: {"similarity_score": 0.7013903, "chunk_id": "b9631bb96da881339e67651ed6ceb1d7", "doc_uri": "Volumes/felixflory/rag_felixflory/source_docs/b23b2787-eb44-4e0b-82bd-fca01f140a3e.pdf"}
+
+Passage text: Walmart Inc.Consolidated Statements of Income
+ 
+ Fiscal Years Ended January 31, (Amounts in millions, except per share data)
+ 2020  2019  2018 Revenues:
+      Net sales
+ $519,926  $510,329  $495,761 Membership and other income
+ ...
+ Passage metadata: {"similarity_score": 0.6992573, "chunk_id": "35323977abe4bf412e94170668dde8b5", "doc_uri": "Volumes/felixflory/rag_felixflory/source_docs/af5415d9-0e07-4ba1-a6cc-bb3058a7f4e8.pdf"}
+
+Passage text: Walmart
+Inc.Consolidated
+Statements
+of
+Income
+ 
+ Fiscal
+Years
+Ended
+January
+31, (Amounts in millions, except per share data)
+ 2019  2018  2017 Revenues:
+      Net sales
+ $510,329  $495,761  $481,317 Membership and other income
+ ...
+Passage metadata: {"similarity_score": 0.69347894, "chunk_id": "f76d9973a331ed27cf3b5fe1b34fa91d", "doc_uri": "Volumes/felixflory/rag_felixflory/source_docs/b23b2787-eb44-4e0b-82bd-fca01f140a3e.pdf"}
+
+Passage text: conciliation from the U.S. statutory rate to the effective income tax rates for fiscal 2020 , 2019 and 2018  is presented in Note 9  to our Notes to Consolidated Financial Sta
+tements. As a result of the factors d
+iscussed above, we reported $15.2 billion  and $7.2 billion  of consolidated net incom e for fiscal 2020  and 2019 , respectively, which represents an increase of 
+$8.0 billion  and a decrease of $3.3 billion  for fiscal 2020  and 2019 , respectively, when compar ed to the previous fiscal year. Diluted netincome per common share 
+attributable to Walmart ("EPS") was $5.19 , $2.26 and $3.28  for fiscal 2020 , 2019 and 2018 , respectively. Walmart U.S. Segment
+ 
+ Fiscal Years Ended January 31, (Amounts in millions, except unit counts)
+ 2020  2019  2018 Net sales
+ $341,004  $331,666  $318,477 Percentage change from comparable period
+ 2.8 %4.1 % 3.5 %Calendar comparable sales increase
+ 2.9 % 3.7 % 2.1 %Operating income
+ $17,380  $17,386  $16,995 Operating income as a percentage of net sales
+ 5.1 % 5.2 % 5.3 %Unit counts at period end
+ 4,756 4,769  4,761 Retail square feet at period end
+ 703 705  705 Net sales for the Walm
+Passage metadata: {"similarity_score": 0.6922467, "chunk_id": "725bcce348b934f5a8f0d370d3f7bc48", "doc_uri": "Volumes/felixflory/rag_felixflory/source_docs/af5415d9-0e07-4ba1-a6cc-bb3058a7f4e8.pdf"}
+
+Passage text: Walmart International Segment 
+ Fiscal Years Ended January 31, (Amounts in millions, except unit counts)
+ ...
+ Passage metadata: {"similarity_score": 0.6788779, "chunk_id": "2e1050aa8d9aa62c2987678132e31a3f", "doc_uri": "Volumes/felixflory/rag_felixflory/source_docs/af5415d9-0e07-4ba1-a6cc-bb3058a7f4e8.pdf"}
+
+
+// second call to LLM 
+// # inputs = 
+{'messages': [{'role': 'system',
+               'content': 'You are a helpful assistant that answers questions by calling tools.  Provide responses ONLY based on the information from tools that are explictly specified to you.  If '
+                          "you do not have a relevant tool for a question, respond with 'Sorry, I'm not trained to answer that question'."},
+              {'role': 'user', 'content': 'what was walmarts revenue in 2019?'},
+              {'role': 'assistant', 'tool_calls': [{'id': 'call_06aa252c-f94f-491d-9b49-f07f26baa1dc', 'type': 'function', 'function': {...}}]},
+              {'role': 'tool',
+               'tool_call_id': 'call_06aa252c-f94f-491d-9b49-f07f26baa1dc',
+               'content': 'Use the following pieces of retrieved context to answer the question.\n'
+                          'Only use the passages from context that are relevant to the query to answer the question, ignore the irrelevant passages.  When responding, cite your source, referring to '
+                          "the passage by the columns in the passage's metadata.\n"
+                          '\n'
+                          'Context: Passage text: Walmart U.S. Segment \n'
+                          ' Fiscal\n'
+                          'Years\n'
+                          'Ended\n'
+                          'January\n'
+                          '31, (Amounts in millions, except unit counts)\n'
+                          ' 2019  2018  2017 Net sales\n'
+                          ' $331,666  $318,477  $307,833 Percentage change from comparable period\n'
+                          ' 4.1 %3.5 % 3.2 %Calendar comparable sales increase\n'
+                          ' 3.7 % 2.1 % 1.6 %Operating income\n'
+                          ' $17,386  $16,995  $17,012 Operating income as a percentage of net sales\n'
+                          ' 5.2 % 5.3 % 5.5 %Unit counts at period end\n'
+                          ' 4,769 4,761  4,672 Retail square feet at period end\n'
+                          ' 705 705  699 Net sales for the Walm\n'
+                          'art U.S. segment increased $13.2 billion or 4.1% and $10.6 billion or 3.5% for fiscal 2019 and 2018 , respectively, when compar ed to the previous fiscal year. The '
+                          'increases in netsales were primarily du\n'
+                          'e to increases in comparable store sales of 3.7% and 2.1% for fiscal 2019 and 2018 , respectively, driven by t icket and traffic growth. Walmart U.S. eCommerce sales '
+                          'positivelycontributed approximat\n'
+                          'ely 1.3% and 0.7% to comparable sales for fiscal 2019 and 2018 . Additionally, for fiscal 2018 , year-over-year growth  in retail square feet further contributed to the '
+                          'year-over-year increase.\n'
+                          'Gross profit rate decre\n'
+                          'Passage metadata: {"similarity_score": 0.7013903, "chunk_id": "b9631bb96da881339e67651ed6ceb1d7", "doc_uri": '
+                          '"Volumes/felixflory/rag_felixflory/source_docs/b23b2787-eb44-4e0b-82bd-fca01f140a3e.pdf"}\n'
+                          '\n'
+                          'Passage text: Walmart Inc.Consolidated Statements of Income\n'
+                          ' \n'
+                          ' Fiscal Years Ended January 31, (Amounts in millions, except per share data)\n'
+                          ' 2020  2019  2018 Revenues:\n'
+                          '      Net sales\n'
+                          ' $519,926  $510,329  $495,761 Membership and other income\n'
+                          ' 4,038  4,076  4,582 Total revenues\n'
+                          ' 523,964  514,405  500,343 Costs and expenses:\n'
+                          '      Cost of sales\n'
+                          ' 394,605  385,301  373,396 Operating, selling, general and administrative expenses\n'
+                          ' 108,791  107,147  106,510 Operating income\n'
+                          ' 20,568  21,957  20,437 Interest:\n'
+                          '      Debt\n'
+                          ' 2,262  1,975  1,978 Finance, capital lease and financing obligations\n'
+                          ' 337  371  352 Interest income\n'
+                          ' (189 ) (217 ) (152 )Interest, net\n'
+                          ' 2,410  2,129  2,178 Loss on extinguishment of debt\n'
+                          ' —  —  3,136 Other (gains) and losses\n'
+                          ' (1,958 )  8,368  — Income before income taxes\n'
+                          ' 20,116  11,460  15,123 Provision for income taxes\n'
+                          ' 4,915  4,281  4,600 Consolidated net income\n'
+                          ' 15,201  7,179  10,523 Consolidated net income attributable to noncon\n'
+                          'trolling interest (320 ) (509 ) (661 )Consolidated net income attributable to Walmart\n'
+                          'Passage metadata: {"similarity_score": 0.6992573, "chunk_id": "35323977abe4bf412e94170668dde8b5", "doc_uri": '
+                          '"Volumes/felixflory/rag_felixflory/source_docs/af5415d9-0e07-4ba1-a6cc-bb3058a7f4e8.pdf"}\n'
+                          '\n'
+                          'Passage text: Walmart\n'
+                          'Inc.Consolidated\n'
+                          'Statements\n'
+                          'of\n'
+                          'Income\n'
+                          ' \n'
+                          ' Fiscal\n'
+                          'Years\n'
+                          'Ended\n'
+                          'January\n'
+                          '31, (Amounts in millions, except per share data)\n'
+                          ' 2019  2018  2017 Revenues:\n'
+                          '      Net sales\n'
+                          ' $510,329  $495,761  $481,317 Membership and other income\n'
+                          ' 4,076  4,582  4,556 Total revenues\n'
+                          ' 514,405  500,343  485,873 Costs\n'
+                          'and\n'
+                          'expenses:\n'
+                          '      Cost of sales\n'
+                          ' 385,301  373,396  361,256 Operating, selling, general and administrative expenses\n'
+                          ' 107,147  106,510  101,853 Operating\n'
+                          'income\n'
+                          ' 21,957  20,437  22,764 Interest:\n'
+                          '      Debt\n'
+                          ' 1,975  1,978  2,044 Capital lease and financing obligations\n'
+                          ' 371  352  323 Interest income\n'
+                          ' (217 ) (152 ) (100 )Interest, net\n'
+                          ' 2,129  2,178  2,267 Loss on extinguishment of debt\n'
+                          ' —  3,136  — Other (gains) and losses\n'
+                          ' 8,368  —  — Income\n'
+                          'before\n'
+                          'income\n'
+                          'taxes\n'
+                          ' 11,460  15,123  20,497 Provision for income taxes\n'
+                          ' 4,281  4,600  6,204 Consolidated\n'
+                          'net\n'
+                          'income\n'
+                          'Passage metadata: {"similarity_score": 0.69347894, "chunk_id": "f76d9973a331ed27cf3b5fe1b34fa91d", "doc_uri": '
+                          '"Volumes/felixflory/rag_felixflory/source_docs/b23b2787-eb44-4e0b-82bd-fca01f140a3e.pdf"}\n'
+                          '\n'
+                          'Passage text: conciliation from the U.S. statutory rate to the effective income tax rates for fiscal 2020 , 2019 and 2018  is presented in Note 9  to our Notes to '
+                          'Consolidated Financial Sta\n'
+                          'tements. As a result of the factors d\n'
+                          'iscussed above, we reported $15.2 billion  and $7.2 billion  of consolidated net incom e for fiscal 2020  and 2019 , respectively, which represents an increase of \n'
+                          '$8.0 billion  and a decrease of $3.3 billion  for fiscal 2020  and 2019 , respectively, when compar ed to the previous fiscal year. Diluted netincome per common share \n'
+                          'attributable to Walmart ("EPS") was $5.19 , $2.26 and $3.28  for fiscal 2020 , 2019 and 2018 , respectively. Walmart U.S. Segment\n'
+                          ' \n'
+                          ' Fiscal Years Ended January 31, (Amounts in millions, except unit counts)\n'
+                          ' 2020  2019  2018 Net sales\n'
+                          ' $341,004  $331,666  $318,477 Percentage change from comparable period\n'
+                          ' 2.8 %4.1 % 3.5 %Calendar comparable sales increase\n'
+                          ' 2.9 % 3.7 % 2.1 %Operating income\n'
+                          ' $17,380  $17,386  $16,995 Operating income as a percentage of net sales\n'
+                          ' 5.1 % 5.2 % 5.3 %Unit counts at period end\n'
+                          ' 4,756 4,769  4,761 Retail square feet at period end\n'
+                          ' 703 705  705 Net sales for the Walm\n'
+                          'Passage metadata: {"similarity_score": 0.6922467, "chunk_id": "725bcce348b934f5a8f0d370d3f7bc48", "doc_uri": '
+                          '"Volumes/felixflory/rag_felixflory/source_docs/af5415d9-0e07-4ba1-a6cc-bb3058a7f4e8.pdf"}\n'
+                          '\n'
+                          'Passage text: Walmart International Segment \n'
+                          ' Fiscal Years Ended January 31, (Amounts in millions, except unit counts)\n'
+                          ' 2020  2019  2018 Net sales\n'
+                          ' $120,130  $120,824  $118,068 Percentage change from comparable period\n'
+                          ' (0.6 )% 2.3 % 1.7 %Operating income\n'
+                          ' $3,370  $4,883  $5,229 Operating income as a percentage of net sales\n'
+                          ' 2.8  % 4.0 % 4.4 %Unit counts at period end\n'
+                          ' 6,146 5,993  6,360 Retail square feet at period end\n'
+                          ' 345 344  373 Net sales for the Walmart Inter\n'
+                          'national segment decreased $0.7 billion  or 0.6% and increased $2.8 billion or 2.3%  for fiscal 2020  and 2019 , respectively, when compared to the previous f\n'
+                          'iscal year. For fiscal 2020 , the decrease was prima rily due to negative fluctuations in currency exchange rates of $4.1 billion as well as areduction in sales due to our '
+                          's\n'
+                          'ale of the majority stake in Walmart Brazil in August 2018, offset by a full year of net sales from Flipkart and positive comparablesales growth in the majori\n'
+                          'ty of our markets.For fiscal \n'
+                          '2019 , the increase was prima rily due to positive comparable sales in the majority of our markets and net sales from Flipkart, which we acquired in thethird quarter of '
+                          'fisc\n'
+                          'Passage metadata: {"similarity_score": 0.6788779, "chunk_id": "2e1050aa8d9aa62c2987678132e31a3f", "doc_uri": '
+                          '"Volumes/felixflory/rag_felixflory/source_docs/af5415d9-0e07-4ba1-a6cc-bb3058a7f4e8.pdf"}\n'
+                          '\n'}],
+ 'tools': [{'type': 'function',
+            'function': {'name': 'retrieve_documents',
+                         'description': "Search for documents that are relevant to a user's query about the SEC filings.",
+                         'parameters': {'type': 'object', 'properties': {...}, 'required': [...]}}}],
+ 'max_tokens': 1500,
+ 'temperature': 0.01}
+
+//  response = 
+{'id': 'chatcmpl_af4546d7-c9b1-49fc-816a-43053e7a5d69',
+'object': 'chat.completion',
+'created': 1729461205,
+'model': 'meta-llama-3.1-70b-instruct-082724',
+'choices': [{'index': 0,
+             'message': {'role': 'assistant',
+                         'content': 'According to the passage from "Walmart Inc.Consolidated Statements of Income" (Passage metadata: {"similarity_score": 0.6992573, "chunk_id": '
+                                    '"35323977abe4bf412e94170668dde8b5", "doc_uri": "Volumes/felixflory/rag_felixflory/source_docs/af5415d9-0e07-4ba1-a6cc-bb3058a7f4e8.pdf"}), Walmart\'s revenue in '
+                                    '2019 was $510,329 million (Passage text: "Revenues: Net sales $510,329").'},
+             'finish_reason': 'stop',
+             'logprobs': None}],
+'usage': {'prompt_tokens': 3036, 'completion_tokens': 139, 'total_tokens': 3175}}
