@@ -1,4 +1,18 @@
 # Databricks notebook source
+from setuptools import setup, find_packages
+
+setup(
+    name='my_library',
+    version='0.1',
+    packages=find_packages(),
+    install_requires=[
+        # List your dependencies here
+    ],
+)
+
+
+# COMMAND ----------
+
 # MAGIC %pip install -U -qqqq databricks-agents mlflow mlflow-skinny databricks-vectorsearch langchain==0.2.11 langchain_core==0.2.23 langchain_community==0.2.10 
 
 # COMMAND ----------
