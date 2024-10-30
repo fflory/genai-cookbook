@@ -63,9 +63,13 @@ class SampleFiles:
 
 # COMMAND ----------
 
+
+
+# COMMAND ----------
+
 sample_files = SampleFiles(
-    SOURCE_PATH,
-    "/".join(SOURCE_PATH.split("/")[:-1])
+    uc_path = SOURCE_PATH,
+    sample_data = "/".join(SOURCE_PATH.split("/")[:-1])
     + "/info/"
     + "Databricks Use-cases_ver0.1.xlsx - Copy of Sample Data.csv",
 )
@@ -122,7 +126,7 @@ display(ey_dbs_app_poc_parsed_docs_silver_sample)
 
 # COMMAND ----------
 
-; CCS - %s; File extension - %s; Text: %s
+# ; CCS - %s; File extension - %s; Text: %s
 
 # COMMAND ----------
 
@@ -133,7 +137,7 @@ Example 1: Metadata: Filename - "Draft Project Alpha Financial DD Report_05.18.2
 
 Example 2: Metadata: Filename - "Draft Project Alpha Transaction Foundations Databook"; CCS - "Buy & Integrate"; File extension - "pdf"; Text: "Page 1Project Alpha..." Category: Databook  
 
-Now classify the following document:
+Now classify the following document, only provide the class, do not provide any reason or other context:
 
 Metadata: Filename - %s; CCS - %s; File extension - %s, Text: %s"""
 
@@ -152,7 +156,55 @@ Metadata: Filename - %s; CCS - %s; File extension - %s, Text: %s"""
 
 # COMMAND ----------
 
-display(
+llm_endpoint = "yosegi_fine_tuned_dbsupport"
+llm_endpoint = "databricks-meta-llama-3-1-405b-instruct"
+llm_endpoint = 'databricks-meta-llama-3-1-70b-instruct'
+llm_endpoint = "Yash_GPT"
+
+# COMMAND ----------
+
+llama_405_df = (
+  ey_dbs_app_poc_parsed_docs_silver_sample.withColumn(
+    "query",
+    F.format_string(
+        prompt_template,
+        F.col("file_name"),
+        F.col("ccs"),
+        F.col("file_extension"),
+        F.expr("substring(doc_parsed_contents.parsed_content, 1, 1000)"),
+    ),
+)
+.withColumn(
+    "class", F.expr(f"ai_query('{llm_endpoint}', query)")
+)
+.limit(10))
+
+# COMMAND ----------
+
+llama_70_df = (
+  ey_dbs_app_poc_parsed_docs_silver_sample.withColumn(
+    "query",
+    F.format_string(
+        prompt_template,
+        F.col("file_name"),
+        F.col("ccs"),
+        F.col("file_extension"),
+        F.expr("substring(doc_parsed_contents.parsed_content, 1, 1000)"),
+    ),
+)
+.withColumn(
+    "class", F.expr(f"ai_query('{llm_endpoint}', query)")
+)
+.limit(10))
+
+# COMMAND ----------
+
+display(llama_70_df)
+
+# COMMAND ----------
+
+llm_endpoint = "Yash_GPT"
+yash_GPT = (
     ey_dbs_app_poc_parsed_docs_silver_sample.withColumn(
         "query",
         F.format_string(
@@ -164,29 +216,22 @@ display(
         ),
     )
     .withColumn(
-        "class", F.expr("ai_query('databricks-meta-llama-3-1-405b-instruct', query)")
+        "class", F.expr(f"ai_query('{llm_endpoint}', query)")
     )
-    .limit(10)
+    .limit(12)
 )
+display(yash_GPT)
 
 # COMMAND ----------
 
-ai_query_sql = f"""
-SELECT 
-  *,
-  ai_query(
-    'databricks-meta-llama-3-1-405b-instruct',
-    CONCAT('{prompt}', doc_parsed_contents.parsed_content)
-  ) AS class
-FROM {UC_CATALOG}.{UC_SCHEMA}.ey_dbs_app_poc_parsed_docs_silver_sample
-limit 4
-"""
-print(ai_query_sql)
-
-# COMMAND ----------
-
-display(spark.sql(ai_query_sql))
-
-# COMMAND ----------
-
-F.format_string
+# ai_query_sql = f"""
+# SELECT 
+#   *,
+#   ai_query(
+#     'databricks-meta-llama-3-1-405b-instruct',
+#     CONCAT('{prompt}', doc_parsed_contents.parsed_content)
+#   ) AS class
+# FROM {UC_CATALOG}.{UC_SCHEMA}.ey_dbs_app_poc_parsed_docs_silver_sample
+# limit 4
+# """
+# print(ai_query_sql)
