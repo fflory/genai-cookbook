@@ -20,8 +20,9 @@ from databricks import agents
 # COMMAND ----------
 
 df = spark.table(EVALUATION_SET_FQN)
-eval_df = df.toPandas()
-display(eval_df)
+eval_data = df.toPandas()
+# eval_df = pd.DataFrame(eval_data)
+display(eval_data)
 
 # COMMAND ----------
 
@@ -66,7 +67,9 @@ eval_data = [
 
 # COMMAND ----------
 
-runs = mlflow.search_runs(experiment_names=[MLFLOW_EXPERIMENT_NAME], filter_string=f"run_name = '{POC_CHAIN_RUN_NAME}'", output_format="list")
+runs = mlflow.search_runs(experiment_names=[MLFLOW_EXPERIMENT_NAME], filter_string=f"run_name = '{POC_CHAIN_RUN_NAME}'", output_format="list",
+                          order_by=["attributes.start_time desc"], max_results=1
+                          )
 
 if len(runs) != 1:
     raise ValueError(f"Found {len(runs)} run with name {POC_CHAIN_RUN_NAME}.  Ensure the run name is accurate and try again.")
@@ -98,7 +101,8 @@ pip_requirements = mlflow.pyfunc.get_model_dependencies(f"runs:/{poc_run.info.ru
 with mlflow.start_run(run_id=poc_run.info.run_id):
     # Evaluate
     eval_results = mlflow.evaluate(
-        data=eval_df,
+        # data=eval_df,
+        data=eval_data,
         model=f"runs:/{poc_run.info.run_id}/chain",  # replace `chain` with artifact_path that you used when calling log_model.  By default, this is `chain`.
         model_type="databricks-agent",
     )
