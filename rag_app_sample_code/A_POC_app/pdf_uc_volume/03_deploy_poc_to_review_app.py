@@ -63,15 +63,29 @@ with mlflow.start_run(run_name=POC_CHAIN_RUN_NAME):
 
 # COMMAND ----------
 
+try:
+    logged_chain = logged_chain_info.model_uri
+except NameError:
+    _run = mlflow.search_runs(
+        experiment_names=[MLFLOW_EXPERIMENT_NAME],
+        filter_string=f"run_name = 'poc'",
+        order_by=["attributes.start_time desc"],  # dedup take latest run
+        max_results=1,
+        output_format="list",
+    )
+    logged_chain = f"runs:/{_run[0].info.run_id}/chain" 
+
+# COMMAND ----------
+
 chain_input = {
     "messages": [
         {
             "role": "user",
-            "content": "What is RAG?", # Replace with a question relevant to your use case
+            "content": "In the Red Flag Due Diligence Report what are Adjusted net working capital (“NWC”) key findings",
         }
     ]
 }
-chain = mlflow.langchain.load_model(logged_chain_info.model_uri)
+chain = mlflow.langchain.load_model(logged_chain)
 chain.invoke(chain_input)
 
 # COMMAND ----------
@@ -140,7 +154,7 @@ print(f"\n\nReview App: {deployment_info.review_app_url}")
 
 # COMMAND ----------
 
-user_list = ["eric.peter@databricks.com"]
+user_list = ["felix.flory@databricks.com"]
 
 # Set the permissions.  If successful, there will be no return value.
 agents.set_permissions(model_name=UC_MODEL_NAME, users=user_list, permission_level=agents.PermissionLevel.CAN_QUERY)
