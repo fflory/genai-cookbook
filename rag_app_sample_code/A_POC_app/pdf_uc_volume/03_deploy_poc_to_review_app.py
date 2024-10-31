@@ -49,10 +49,10 @@ with mlflow.start_run(run_name=POC_CHAIN_RUN_NAME):
         extra_pip_requirements=["databricks-agents"] # TODO: Remove this
     )
 
-    # Attach the data pipeline's configuration as parameters
+    # # Attach the data pipeline's configuration as parameters
     mlflow.log_params(_flatten_nested_params({"data_pipeline": data_pipeline_config}))
 
-    # Attach the data pipeline configuration 
+    # # Attach the data pipeline configuration 
     mlflow.log_dict(data_pipeline_config, "data_pipeline_config.json")
 
 
