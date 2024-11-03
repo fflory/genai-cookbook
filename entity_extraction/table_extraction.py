@@ -21,12 +21,12 @@ print(pdf_files)
 # COMMAND ----------
 
 raw_pdf_elements = partition_pdf(
-      filename=f"/Volumes/{catalog}/{schema}/{volume}/{pdf_files[1]}",
+      filename= pdf_files, #f"/Volumes/{catalog}/{schema}/{volume}/{pdf_files[1]}",
       #extract_images_in_pdf=True,
       infer_table_structure=True,
       lenguages=["eng"],
-      strategy="hi_res",                                   
-      extract_image_block_types=["Table", "Image"],          
+      strategy="hi_res",
+      extract_image_block_types=["Table", "Image"],
       #extract_image_block_to_payload=False,
       # Chunking params to aggregate text blocks
       # Attempt to create a new chunk 3800 chars

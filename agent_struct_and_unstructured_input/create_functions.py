@@ -263,7 +263,7 @@ creds.token, creds.host
 
 UC_CATALOG = "felixflory"
 UC_SCHEMA = "ey_dbs_workshop_2024_10"
-GENIE_SPACE = "01ef9217da36130ba9e15a0c0eeae810"
+GENIE_SPACE = "01ef97c04a181177b142e70a34207692"
 
 QUESTION_COMMENT = "the question to ask"
 CONTEXTUAL_HISTORY_COMMENT = """
@@ -321,15 +321,11 @@ RETURN SELECT {UC_CATALOG}.{UC_SCHEMA}._genie_query(
 
 # COMMAND ----------
 
-# MAGIC %sql
-# MAGIC CREATE OR REPLACE FUNCTION felixflory.ey_dbs_workshop_2024_10.ai_search(question STRING COMMENT "the question to ask about customer reports, their corporate earnings reports")
-# MAGIC RETURNS STRING
-# MAGIC LANGUAGE SQL
-# MAGIC COMMENT 'This is a search agent for anything regarding company revenue, financial reports and coporate earnings' 
-# MAGIC RETURN SELECT string(collect_set(chunked_text)) from vector_search(index => "felixflory.ey_dbs_workshop_2024_10.ey_dbs_app_poc_chunked_docs_gold_index", query => question, num_results => 5);
-# MAGIC
-# MAGIC select felixflory.ey_dbs_workshop_2024_10.ai_search("what whas Zorch revenue in 2019");
+# %sql
+# CREATE OR REPLACE FUNCTION felixflory.ey_dbs_workshop_2024_10.ai_search(question STRING COMMENT "the question to ask about customer reports, their corporate earnings reports")
+# RETURNS STRING
+# LANGUAGE SQL
+# COMMENT 'This is a search agent for anything regarding company revenue, financial reports and coporate earnings' 
+# RETURN SELECT string(collect_set(chunked_text)) from vector_search(index => "felixflory.ey_dbs_workshop_2024_10.ey_dbs_app_poc_chunked_docs_gold_index", query => question, num_results => 5);
 
-# COMMAND ----------
-
-
+# select felixflory.ey_dbs_workshop_2024_10.ai_search("what was Zorch revenue in 2019");

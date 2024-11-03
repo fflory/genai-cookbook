@@ -23,7 +23,15 @@
 
 # COMMAND ----------
 
-chunks = spark.table(f"{UC_CATALOG}.{UC_SCHEMA}.ey_dbs_app_poc_chunked_docs_gold")
+chunks = spark.table(f"{UC_CATALOG}.{UC_SCHEMA}.ey_dbs_app_poc_parsed_docs_silver")
+
+# COMMAND ----------
+
+
+
+# COMMAND ----------
+
+display(chunks)
 
 # COMMAND ----------
 
@@ -33,10 +41,15 @@ import pandas as pd
 from pyspark.sql import functions as F
 from pyspark.sql.window import Window
 
+# docs = (chunks
+#         .withColumn("row_num", F.row_number().over(Window.partitionBy("path").orderBy(F.rand())))
+#         .filter("row_num <= 10")
+#         .select(F.col("chunked_text").alias("content"), F.col("path").alias("doc_uri"))
+#         )
 docs = (chunks
-        .withColumn("row_num", F.row_number().over(Window.partitionBy("path").orderBy(F.rand())))
-        .filter("row_num <= 10")
-        .select(F.col("chunked_text").alias("content"), F.col("path").alias("doc_uri"))
+        # .withColumn("row_num", F.row_number().over(Window.partitionBy("path").orderBy(F.rand())))
+        # .filter("row_num <= 10")
+        .select(F.col("doc_parsed_contents")["parsed_content"].alias("content"), F.col("path").alias("doc_uri"))
         )
 # docs = docs.toPandas()
 display(docs)
@@ -46,7 +59,7 @@ display(docs)
 # Export a Delta table to a Parquet file in a UC volume
 parquet_output_path = f"{SOURCE_PATH}/eval_docs_input"
 
-docs.write.mode("overwrite").parquet(parquet_output_path)
+docs.repartition(1).write.mode("overwrite").parquet(parquet_output_path)
 
 # COMMAND ----------
 

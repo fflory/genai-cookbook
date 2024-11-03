@@ -204,7 +204,7 @@ install_apt_get_packages(['pandoc'])
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ### Prepare the strategies to run
+# MAGIC ### Prepare the strategies to `run`
 
 # COMMAND ----------
 
@@ -602,6 +602,255 @@ import yaml
 import json
 
 NUMBER_THREADS = 8
+
+# If True, the tables & streaming checkpoints will be deleted before starting.
+# Use True if you are actively changing your parsing/chunking code and need to re-run for already processed files.
+# If you re-ruse a `strategy_short_name`, you will need to set to True in order to reset, otherwise you will experience an error with Spark streaming
+RESET_TABLES_BEFORE_RUNNING = True
+
+def write_to_yaml(json_data, file_name):
+    yaml_str = yaml.dump(json_data)
+    yaml_file_path = f"output_chain_configs/{file_name}.yaml"
+
+    with open(yaml_file_path, "w") as file:
+        yaml.dump(json_data, file)
+
+# Define the function to run the notebook
+def run_notebook(notebook_path, timeout_seconds=0, args={}):
+    result = dbutils.notebook.run(notebook_path, timeout_seconds, args)
+    return result
+
+def run_main_notebooks(packed_strategy_as_json):
+    validate = run_notebook(notebook_path="00_validate_config", timeout_seconds=0, args={"strategy_to_run": packed_strategy_as_json})
+    if validate:
+        load = run_notebook(notebook_path="01_load_files", timeout_seconds=0, args={"strategy_to_run": packed_strategy_as_json})
+        if load:
+            parse = run_notebook(notebook_path="02_parse_docs", timeout_seconds=0, args={"strategy_to_run": packed_strategy_as_json})
+            if parse:
+                chunk = run_notebook(notebook_path="03_chunk_docs", timeout_seconds=0, args={"strategy_to_run": packed_strategy_as_json})
+                if chunk:
+                    index = run_notebook(notebook_path="04_vector_index", timeout_seconds=0, args={"strategy_to_run": packed_strategy_as_json})
+                    if index:
+                        return True
+    else:
+        return False
+
+def run_single_strategy(strategy):
+    # print(strategy)
+    packed_strategy_as_json = strategy['packed_json']
+    print("----Start Run----")
+    print("Strategy: " + strategy['config']['strategy_short_name'])
+
+    if RESET_TABLES_BEFORE_RUNNING:
+        reset = run_notebook(notebook_path="reset_tables_and_checkpoints", timeout_seconds=0, args={"strategy_to_run": packed_strategy_as_json})
+        if reset:
+            outcome = run_main_notebooks(packed_strategy_as_json)
+        else:
+            outcome = False
+    else:
+        outcome = run_main_notebooks(packed_strategy_as_json)
+
+    if outcome is True:
+        strategy['status'] = "success"
+    else: 
+        strategy['status'] = "failure"
+       
+    return strategy
+
+
+# Use ThreadPoolExecutor to run notebooks in parallel
+with ThreadPoolExecutor(max_workers=NUMBER_THREADS) as executor:
+    # Create a future for each notebook run
+    futures = [executor.submit(run_single_strategy, strategy) for strategy in packed_strategies]
+    
+    # Process the results as they complete
+    results = []
+    for future in as_completed(futures):
+            result = future.result()
+            results.append(result)
+            if result['status'] == 'success':
+                # print(result)
+                print(f"Strategy `{result['config']['strategy_short_name']}` SUCCESS")
+                # write_to_yaml(json_data=result['chain_config'], file_name=result['config']['strategy_short_name'])
+            else:
+                # print(result)
+                print(f"Strategy `{result['config']['strategy_short_name']}` FAILED")
+            print("----")
+
+# Contains information about all runs
+# print(results)
+
+# Print out the resulting names of the MLflow Runs for each pipeline to copy / paste to the evaluation notebook
+for item in strategies_to_try:
+    print('"data_pipeline_'+item['strategy_short_name']+'",')
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## re-run the failed notebooks
+# MAGIC
+
+# COMMAND ----------
+
+packed_strategies_failed = [s for s in packed_strategies if s['config']['strategy_short_name'] == 'parser_langchain_recursive_char_4096_512_gte_large']
+print(packed_strategies_failed[0]["config"]["strategy_short_name"])
+
+# COMMAND ----------
+
+packed_strategies_failed
+
+# COMMAND ----------
+
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import yaml
+import json
+
+NUMBER_THREADS = 8
+
+# If True, the tables & streaming checkpoints will be deleted before starting.
+# Use True if you are actively changing your parsing/chunking code and need to re-run for already processed files.
+# If you re-ruse a `strategy_short_name`, you will need to set to True in order to reset, otherwise you will experience an error with Spark streaming
+RESET_TABLES_BEFORE_RUNNING = True
+
+def write_to_yaml(json_data, file_name):
+    yaml_str = yaml.dump(json_data)
+    yaml_file_path = f"output_chain_configs/{file_name}.yaml"
+
+    with open(yaml_file_path, "w") as file:
+        yaml.dump(json_data, file)
+
+# Define the function to run the notebook
+def run_notebook(notebook_path, timeout_seconds=0, args={}):
+    result = dbutils.notebook.run(notebook_path, timeout_seconds, args)
+    return result
+
+def run_main_notebooks(packed_strategy_as_json):
+    validate = run_notebook(notebook_path="00_validate_config", timeout_seconds=0, args={"strategy_to_run": packed_strategy_as_json})
+    if validate:
+        load = run_notebook(notebook_path="01_load_files", timeout_seconds=0, args={"strategy_to_run": packed_strategy_as_json})
+        if load:
+            parse = run_notebook(notebook_path="02_parse_docs", timeout_seconds=0, args={"strategy_to_run": packed_strategy_as_json})
+            if parse:
+                chunk = run_notebook(notebook_path="03_chunk_docs", timeout_seconds=0, args={"strategy_to_run": packed_strategy_as_json})
+                if chunk:
+                    index = run_notebook(notebook_path="04_vector_index", timeout_seconds=0, args={"strategy_to_run": packed_strategy_as_json})
+                    if index:
+                        return True
+    else:
+        return False
+
+def run_single_strategy(strategy):
+    # print(strategy)
+    packed_strategy_as_json = strategy['packed_json']
+    print("----Start Run----")
+    print("Strategy: " + strategy['config']['strategy_short_name'])
+
+    if RESET_TABLES_BEFORE_RUNNING:
+        reset = run_notebook(notebook_path="reset_tables_and_checkpoints", timeout_seconds=0, args={"strategy_to_run": packed_strategy_as_json})
+        if reset:
+            outcome = run_main_notebooks(packed_strategy_as_json)
+        else:
+            outcome = False
+    else:
+        outcome = run_main_notebooks(packed_strategy_as_json)
+
+    if outcome is True:
+        strategy['status'] = "success"
+    else: 
+        strategy['status'] = "failure"
+       
+    return strategy
+
+
+# Use ThreadPoolExecutor to run notebooks in parallel
+with ThreadPoolExecutor(max_workers=NUMBER_THREADS) as executor:
+    # Create a future for each notebook run
+    futures = [executor.submit(run_single_strategy, strategy) for strategy in packed_strategies_failed]
+    
+    # Process the results as they complete
+    results = []
+    for future in as_completed(futures):
+            result = future.result()
+            results.append(result)
+            if result['status'] == 'success':
+                # print(result)
+                print(f"Strategy `{result['config']['strategy_short_name']}` SUCCESS")
+                # write_to_yaml(json_data=result['chain_config'], file_name=result['config']['strategy_short_name'])
+            else:
+                # print(result)
+                print(f"Strategy `{result['config']['strategy_short_name']}` FAILED")
+            print("----")
+
+# Contains information about all runs
+# print(results)
+
+# Print out the resulting names of the MLflow Runs for each pipeline to copy / paste to the evaluation notebook
+for item in strategies_to_try:
+    print('"data_pipeline_'+item['strategy_short_name']+'",')
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC # MSFT Azure Doc AI
+
+# COMMAND ----------
+
+# Array of strategies to try
+strategies_to_try = [
+    {
+        # The `strategy_short_name` key is required
+        # This should be a short name to identify this strategy by in the evaluation sweep
+        "strategy_short_name": "azure_doc_intel",
+        # You can include any of the top-level keys in `baseline_strategy`
+        "pipeline_config": {
+            "file_format": "pdf",
+            "parser": {"name": "azure_doc_intelligence", "config": {}},
+            "chunker": {
+                # "name": "langchain_recursive_char",
+                "config": {"chunk_size_tokens": 1500 },
+            },
+        },
+    },
+
+]
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC %md
+# MAGIC ### Prepare the strategies to `run`
+
+# COMMAND ----------
+
+strategies_to_try
+
+# COMMAND ----------
+
+# This step "packs" each strategy into a JSON string that is passed to each Notebook as a parameter.
+packed_strategies = []
+for strategy in strategies_to_try:
+    packed_strategies.append({
+        "config": strategy,
+        "packed_json": get_strategy_packed_json_string(baseline_strategy=baseline_strategy, strategy_to_try=strategy)
+    })
+
+# COMMAND ----------
+
+packed_strategies
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC %md
+# MAGIC ## Execute the strategies in parallel
+
+# COMMAND ----------
+
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import yaml
+import json
+
+NUMBER_THREADS = 5
 
 # If True, the tables & streaming checkpoints will be deleted before starting.
 # Use True if you are actively changing your parsing/chunking code and need to re-run for already processed files.

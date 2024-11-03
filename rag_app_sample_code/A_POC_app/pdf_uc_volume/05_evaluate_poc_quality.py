@@ -28,29 +28,29 @@ display(eval_data)
 
 # If you did not collect feedback from your stakeholders, and want to evaluate using a manually curated set of questions, you can use the structure below.
 
-eval_data = [
-    {
-        ### REQUIRED
-        # Question that is asked by the user
-        "request": "What is the difference between reduceByKey and groupByKey in Spark?",
+# eval_data = [
+#     {
+#         ### REQUIRED
+#         # Question that is asked by the user
+#         "request": "What is the difference between reduceByKey and groupByKey in Spark?",
 
-        ### OPTIONAL
-        # Optional, user specified to identify each row
-        "request_id": "your-request-id",
-        # Optional: correct response to the question
-        # If provided, Agent Evaluation can compute additional metrics.
-        "expected_response": "There's no significant difference.",
-        # Optional: Which documents should be retrieved.
-        # If provided, Agent Evaluation can compute additional metrics.
-        "expected_retrieved_context": [
-            {
-                # URI of the relevant document to answer the request
-                # Must match the contents of `document_uri` in your chain config / Vec
-                "doc_uri": "doc_uri_2_1",
-            },
-        ],
-    }
-]
+#         ### OPTIONAL
+#         # Optional, user specified to identify each row
+#         "request_id": "your-request-id",
+#         # Optional: correct response to the question
+#         # If provided, Agent Evaluation can compute additional metrics.
+#         "expected_response": "There's no significant difference.",
+#         # Optional: Which documents should be retrieved.
+#         # If provided, Agent Evaluation can compute additional metrics.
+#         "expected_retrieved_context": [
+#             {
+#                 # URI of the relevant document to answer the request
+#                 # Must match the contents of `document_uri` in your chain config / Vec
+#                 "doc_uri": "doc_uri_2_1",
+#             },
+#         ],
+#     }
+# ]
 
 # Uncomment this row to use the above data instead of your evaluation set
 # eval_df = pd.DataFrame(eval_data)
@@ -64,6 +64,11 @@ eval_data = [
 
 # MAGIC %md
 # MAGIC ## Get the MLflow run of the POC application 
+
+# COMMAND ----------
+
+POC_CHAIN_RUN_NAME
+print(POC_CHAIN_RUN_NAME)
 
 # COMMAND ----------
 

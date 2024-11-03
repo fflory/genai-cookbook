@@ -352,8 +352,8 @@ from azure.ai.documentintelligence.models import AnalyzeResult
 
 
 try:
-    adi_endpoint = dbutils.secrets.get(scope="your_scope", key="afr_api_endpoint")
-    adi_key = dbutils.secrets.get(scope="your_scope", key="afr_api_key")
+    adi_endpoint = dbutils.secrets.get(scope="felix-flory", key="afr_api_endpoint")
+    adi_key = dbutils.secrets.get(scope="felix-flory", key="afr_api_key")
 
     document_intelligence_client = DocumentIntelligenceClient(
         endpoint=adi_endpoint, credential=AzureKeyCredential(adi_key)
@@ -401,12 +401,12 @@ def parse_bytes_adi(
 
 # COMMAND ----------
 
-# with open("./test_data/test-document.pdf", "rb") as file:
-#   file_bytes = file.read()
-#   test_result_adi = parse_bytes_adi(file_bytes)
+with open("/Volumes/felixflory/ey_dbs_workshop_2024_10/raw_data/project_churches/Project Churches - FINAL Red Flag Report 181121.pdf", "rb") as file:
+  file_bytes = file.read()
+  test_result_adi = parse_bytes_adi(file_bytes)
 
-# assert test_result_adi[STATUS_FIELD_NAME] == "SUCCESS"
-# assert test_result_adi['doc_parsed_contents']['num_pages'] == "2"
+assert test_result_adi[STATUS_FIELD_NAME] == "SUCCESS"
+assert test_result_adi['doc_parsed_contents']['num_pages'] == "2"
 
 # COMMAND ----------
 
