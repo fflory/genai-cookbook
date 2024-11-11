@@ -1,0 +1,4 @@
+llm_endpoint: "databricks-meta-llama-3-1-405b-instruct"
+warehouse_id: "74e62f6ab751c594"
+uc_functions:
+  - "felixflory.ey_dbs_workshop_2024_10.python_exec"

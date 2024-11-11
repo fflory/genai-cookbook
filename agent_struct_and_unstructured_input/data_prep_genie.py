@@ -2,6 +2,7 @@
 # MAGIC %pip install openpyxl
 # MAGIC
 # MAGIC import pandas as pd
+# MAGIC import pyspark.sql.functions as F
 
 # COMMAND ----------
 
@@ -21,19 +22,7 @@ for p in _xlsx_path:
 
 # COMMAND ----------
 
-
-
-# COMMAND ----------
-
-import pyspark.sql.functions as F
-
-# COMMAND ----------
-
-df = df.toDF(*[c.lower().replace(" ", "_") for c in df.columns])
-
-# COMMAND ----------
-
-df.toDF(*[c.lower().replace(" ", "_") for c in df.columns]).write.mode("overwrite").format("delta").saveAsTable(f"{UC_CATALOG}.{UC_SCHEMA}.{df_name}")
+ad_astra_xlsx.items()
 
 # COMMAND ----------
 
@@ -48,6 +37,10 @@ def prep_colum_name(col_name):
 for f,x in ad_astra_xlsx.items():
   for s,df in x.items():
     df_name = prep_colum_name(f"ad_astra_{f}_{s}")
-    print(df_name )
+    print("\n", df_name)
+    print("\t", df.columns)
     df = spark.createDataFrame(ad_astra_xlsx[f][s])
-    df.toDF(*[c.lower().replace(" ", "_") for c in df.columns]).write.mode("overwrite").format("delta").saveAsTable(f"{UC_CATALOG}.{UC_SCHEMA}.{df_name}")
+    # print(f"{UC_CATALOG}.{UC_SCHEMA}.{df_name}")
+    (df.toDF(*[c.lower().replace(" ", "_") for c in df.columns])
+     .write.mode("overwrite").format("delta")
+     .saveAsTable(f"{UC_CATALOG}.{UC_SCHEMA}.{df_name}"))

@@ -125,16 +125,50 @@ display(pdf_content_df.select("file_name", "file_extension", "ccs", "file_type",
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC - **Be clear, specific, and direct**
+# MAGIC   - “Respond with the following JSON schema encased in code blocks (```)”
+# MAGIC - **Use examples (few shot learning)**
+# MAGIC   - Add examples of desired inputs / outputs to your prompt
+# MAGIC - **Chain-of-Thought**
+# MAGIC   - Allow your model to “think”. 
+# MAGIC   - Direct your model to output a summary of their results before generating the JSON structure.
+# MAGIC - **Use the system prompt to give the LLM a specific role**
+# MAGIC   - “You are an expert call transcript analyst working for AT&T”.
+# MAGIC - **Instruct the LLM how to handle edge cases**
+# MAGIC   - “If a label is not specifically addressed in the transcript summary, assign that label a False”.
+# MAGIC - **Prefill responses**
+# MAGIC   - If you want JSON output in code blocks, end your user prompt with ```, allowing the LLM to complete the JSON output
+# MAGIC
+# MAGIC https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview
+# MAGIC
+
+# COMMAND ----------
+
+categories_string
+
+# COMMAND ----------
+
 prompt_template = f"""
+
+You work for Ernst and Yong and are an expert in tagging and classifying documents. . 
+
 Classify this document into {categories_string}.
+
+Here are some examples of what you can expect to be asked:
 
 Example 1: Metadata: Filename - "Draft Project Alpha Financial DD Report_05.18.2018"; CCS - "Buy & Integrate"; File extension - "pdf"; Text: "Reliance RestrictedDraft Financial due diligence reportProject Alpha..." Category: FDD Report  
 
 Example 2: Metadata: Filename - "Draft Project Alpha Transaction Foundations Databook"; CCS - "Buy & Integrate"; File extension - "pdf"; Text: "Page 1Project Alpha..." Category: Databook  
 
+Before responding with the final class output take a moment to caputure a few sentences of short notes which you can use to help accurately answer the above question. 
+
 Now classify the following document, only provide the class, do not provide any reason or other context:
 
-Metadata: Filename - %s; CCS - %s; File extension - %s, Text: %s"""
+Metadata: Filename - %s; CCS - %s; File extension - %s, Text: %s
+
+Rembember to only output the class, do not provide any reason or other context.
+"""
 
 # COMMAND ----------
 
@@ -172,4 +206,15 @@ classified_df.write.mode("overwrite").saveAsTable(
 
 classified_df = spark.table(f"{UC_CATALOG}.{UC_SCHEMA}.documents_classified")
 is_match = F.lower(F.col("file_type")).eqNullSafe(F.lower(F.col("class"))).alias("is_match")
-display(classified_df.select("file_type", "class", is_match, "path"))
+display(classified_df.select(
+  is_match,
+  F.col("file_type"), 
+  F.col("class"), 
+  F.col("file_name"),
+  F.col("ccs"),
+  F.col("file_extension"),
+  F.col("path")))
+
+# COMMAND ----------
+
+

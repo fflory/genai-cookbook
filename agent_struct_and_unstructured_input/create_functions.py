@@ -239,18 +239,18 @@
 
 # COMMAND ----------
 
-"the question to ask about The data provided spans various aspects of financial reports, including:
+# "the question to ask about The data provided spans various aspects of financial reports, including:
 
-The two spreadsheets contain the following information:
+# The two spreadsheets contain the following information:
 
-Trial balance P&L: This sheet contains detailed profit and loss (P&L) data, including revenue streams like sales from projects and services. The data is presented over multiple fiscal years (FY17, FY18, and FY19), with columns showing revenue from different accounts such as 'Sales revenues resulting from projects,' 'Sales revenues - other business,' and 'Revenue from lease/rental contracts.'
-Effects from IFRS 16: Likely contains data about the impacts of IFRS 16 accounting standards, although this sheet wasn't fully previewed yet.
+# Trial balance P&L: This sheet contains detailed profit and loss (P&L) data, including revenue streams like sales from projects and services. The data is presented over multiple fiscal years (FY17, FY18, and FY19), with columns showing revenue from different accounts such as 'Sales revenues resulting from projects,' 'Sales revenues - other business,' and 'Revenue from lease/rental contracts.'
+# Effects from IFRS 16: Likely contains data about the impacts of IFRS 16 accounting standards, although this sheet wasn't fully previewed yet.
 
-Trial balance Net assets This sheet includes details about the company's net assets, particularly related to fixed assets and financial assets, such as equity investments, shares in companies, and subsidiaries. It includes fiscal data for FY17, FY18, and FY19, showing asset values in euros.
-Effects from IFRS 16 Similar to the second sheet in the first file, this likely contains information about how IFRS 16 impacts net assets.
-These files appear to be part of financial reporting, specifically related to revenue streams, asset holdings, and the application of accounting standards. 
+# Trial balance Net assets This sheet includes details about the company's net assets, particularly related to fixed assets and financial assets, such as equity investments, shares in companies, and subsidiaries. It includes fiscal data for FY17, FY18, and FY19, showing asset values in euros.
+# Effects from IFRS 16 Similar to the second sheet in the first file, this likely contains information about how IFRS 16 impacts net assets.
+# These files appear to be part of financial reporting, specifically related to revenue streams, asset holdings, and the application of accounting standards. 
 
-This data can be leveraged for a wide range of analyses, such as sentiment analysis, market trend analysis, customer satisfaction and engagement analysis, financial performance analysis, and user behavior analysis on digital platforms."
+# This data can be leveraged for a wide range of analyses, such as sentiment analysis, market trend analysis, customer satisfaction and engagement analysis, financial performance analysis, and user behavior analysis on digital platforms."
 
 # COMMAND ----------
 
@@ -271,7 +271,7 @@ provide relavant history to be able to answer this question, assume genie doesnt
 keep track of history. Use 'no relevant history' if there is nothing relevant 
 to answer the question."""
 GENIE_FUNC_DESCRIPTION = """
-This is an agent that you can converse with to get answers to questions about the customer Ad Astra. It can answer questions about net equity assets for fiscal year 2019 for the customer Ad Astra. Assets can be classified into different levels, such as level 1, level 2, level 3, and level 4. The agent can also provide information about the company's financial performance, such as year over year earnings, investment performance, and other metrics. Try to provide simple questions and provide history if you had prior conversations.
+This is an agent that you can converse with to get answers to questions about the customer Ad Astra. It can answer questions about net equity assets for the customer Ad Astra. Assets can be classified into different levels, such as level 1, level 2, level 3, and level 4. The agent can also provide information about the company's financial performance, such as year over year earnings, investment performance, and other metrics. Try to provide simple questions and provide history if you had prior conversations.
 
 """
 
@@ -316,12 +316,8 @@ RETURN SELECT {UC_CATALOG}.{UC_SCHEMA}._genie_query(
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC I had to run the following in a query editor
-
-# COMMAND ----------
-
 # %sql
+## run the following in a query editor
 # CREATE OR REPLACE FUNCTION felixflory.ey_dbs_workshop_2024_10.ai_search(question STRING COMMENT "the question to ask about customer reports, their corporate earnings reports")
 # RETURNS STRING
 # LANGUAGE SQL
