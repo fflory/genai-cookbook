@@ -53,7 +53,7 @@ display(render)
 
 # COMMAND ----------
 
-_path = "dbfs:/Volumes/felixflory/ey_dbs_workshop_2024_10/raw_data/project_churches/Project Churches - FINAL Red Flag Report 181121.pdf"
+pdf_path = "/Volumes/felixflory/ey_dbs_workshop_2024_10/raw_data/project_churches/Project Churches - FINAL Red Flag Report 181121.pdf"
 
 # COMMAND ----------
 
@@ -62,7 +62,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Path to the PDF file
-pdf_path = '/Workspace/Users/yash.gupta@databricks.com/Demo Folder/DBS Benchmarks/PDF Table Extraction/Project Churches - FINAL Red Flag Report 181121.pdf'
+# pdf_path = '/Workspace/Users/yash.gupta@databricks.com/Demo Folder/DBS Benchmarks/PDF Table Extraction/Project Churches - FINAL Red Flag Report 181121.pdf'
 
 # Open the PDF file
 pdf_document = fitz.open(pdf_path)
