@@ -37,11 +37,6 @@ table_json
 
 # COMMAND ----------
 
-all(isinstance(x, str) or x is None or (isinstance(x, float) and math.isnan(x)) for x in lst)
-isinstance(val, str) or val is None or (isinstance(val, float) and math.isnan(val))
-
-# COMMAND ----------
-
 import pandas as pd
 
 def read_excel_with_header_detection(file_path):
@@ -85,10 +80,6 @@ import pandas as pd
 
 # Read Excel file, ignoring the first row
 df = pd.read_excel(_xlsx_file, sheet_name='Trial balance Net assets', skiprows=1)
-
-# COMMAND ----------
-
-df
 
 # COMMAND ----------
 
