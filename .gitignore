@@ -1,6 +1,7 @@
 genai_cookbook/_build
 env
 .env
+.conda
 .DS_STORE
 .idea
 __pycache__
