@@ -120,69 +120,95 @@ mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
 
 # COMMAND ----------
 
-_config = mlflow.models.ModelConfig(
-            development_config="./agents/generated_configs/agent.yaml"
-        )
-_model_serving_client = get_deploy_client("databricks")
-_retriever_tool = VectorSearchRetriever(_config.get("retriever_tool"))
-
-# COMMAND ----------
-
-# Load the Agent
-agent = AgentWithRetriever()
-
-# Example for testing multiple turns of converastion
-
 # 1st turn of converastion
 first_turn_input = {
     "messages": [
         {"role": "user", "content": f"what was walmarts revenue in 2019?"},
     ]
 }
-
-response = agent.predict(model_input=first_turn_input)
-
-# 2nd turn of converastion
-new_messages = response["messages"]
-new_messages.append({"role": "user", "content": f"how do i use it?"})
-# print(type(new_messages))
-second_turn_input = {"messages": new_messages}
-response = agent.predict(model_input=second_turn_input)
-print(response["content"])
-
-# COMMAND ----------
-
-# agent.retriever_tool.similarity_search("what is walmart's revenue in 2019?")
-# agent.get_messages_array(model_input=first_turn_input)
-# agent.tool_functions.get("retrieve_documents")
-# agent.chat_history # None
-# agent.config._read_config()
-# agent.config.get("llm_config").get("llm_system_prompt_template")
-
-# agent.recursively_call_and_run_tools(max_iter=3,messages=first_turn_input["messages"])
-
-max_iter=10
-messages=first_turn_input["messages"]
-i = 0
-# while i < max_iter: first iteration
-# response = chat_completion(messages=messages, tools=True)
-tools=True
+# # Load the Agent
+# agent = AgentWithRetriever()
 _config = mlflow.models.ModelConfig(
-            development_config="agents/generated_configs/agent.yaml"
+            development_config="./agents/generated_configs/agent.yaml"
         )
-_retriever_tool = VectorSearchRetriever(_config.get("retriever_tool"))
-# def chat_completion(self, messages: List[Dict[str, str]], tools: bool = False):
-endpoint_name = _config.get("llm_config").get("llm_endpoint_name")
-llm_options = _config.get("llm_config").get("llm_parameters")
 _model_serving_client = get_deploy_client("databricks")
-
-_vector_search_schema = _config.get("retriever_tool").get("vector_search_schema")
-
+_retriever_tool = VectorSearchRetriever(_config.get("retriever_tool"))
+_vector_search_schema = _config.get("retriever_tool").get(
+    "vector_search_schema"
+)
+# I have to run the followin twice
+mlflow.models.set_retriever_schema(
+    primary_key=_vector_search_schema.get("primary_key"),
+    text_column=_vector_search_schema.get("chunk_text"),
+    doc_uri=_vector_search_schema.get("doc_uri"),
+)
 _tool_functions = {
   "retrieve_documents": _retriever_tool,
   }
 
 _chat_history = None
+
+# COMMAND ----------
+
+# response = agent.predict(model_input=first_turn_input)
+context = None
+model_input = first_turn_input
+params = None
+
+# COMMAND ----------
+
+messages=model_input.get("messages")
+
+# COMMAND ----------
+
+# Parse `messages` array into the user's query & the chat history
+with mlflow.start_span(name="parse_input", span_type="PARSER") as span:
+    span.set_inputs({"messages": messages})
+    # user_query = self.extract_user_query_string(messages)
+    user_query = messages[-1]["content"]
+    # Save the history inside the Agent's internal state
+    # self.chat_history = self.extract_chat_history(messages)
+    _chat_history= [] + messages[:-1]
+    span.set_outputs(
+        {"user_query": user_query, "chat_history": _chat_history}
+    )
+
+# COMMAND ----------
+
+system_prompt = _config.get("llm_config").get("llm_system_prompt_template")
+
+messages = (
+    [{"role": "system", "content": system_prompt}]
+    + _chat_history  # append chat history for multi turn
+    + [{"role": "user", "content": user_query}]
+)
+
+# COMMAND ----------
+
+# # Call the LLM to recursively calls tools and eventually deliver a generation to send back to the user
+# (
+#     model_response,
+#     messages_log_with_tool_calls,
+# ) = self.recursively_call_and_run_tools(messages=messages)
+
+# COMMAND ----------
+
+max_iter=10
+kwargs = {"messages": messages}
+
+messages = kwargs["messages"]
+del kwargs["messages"]
+i = 0
+
+# while i < max_iter: first iteration
+# response = chat_completion(messages=messages, tools=True)
+tools=True
+
+# COMMAND ----------
+
+# def chat_completion(self, messages: List[Dict[str, str]], tools: bool = False):
+endpoint_name = _config.get("llm_config").get("llm_endpoint_name")
+llm_options = _config.get("llm_config").get("llm_parameters")
 
 # Trace the call to Model Serving
 traced_create = mlflow.trace(
@@ -194,6 +220,7 @@ traced_create = mlflow.trace(
 if tools:
     # Get all tools
     print("tools is True")
+
 tools = [_retriever_tool.get_tool_definition()]
 
 inputs = {
@@ -207,16 +234,26 @@ inputs = {
 #         **llm_options,
 #     }
 
-    # Use the traced_create to make the prediction
+inputs
+
+# COMMAND ----------
+
+# Use the traced_create to make the prediction
 response = traced_create(
         endpoint=endpoint_name,
         inputs=inputs,
     )
 # chat_completion end
 
-# print(response)
+# COMMAND ----------
+
+response
+
+# COMMAND ----------
+
+# continue while i < max_iter: first iteration loop
 assistant_message = response.choices[0]["message"]
-print(assistant_message)
+# print(assistant_message)
 tool_calls = assistant_message.get("tool_calls")
 print(tool_calls)
 tool_messages = []
@@ -232,13 +269,17 @@ the_function = _tool_functions.get(function_name)
 result = the_function(**args)
 print(result)
 
+# COMMAND ----------
+
 tool_message = {
     "role": "tool",
     "tool_call_id": tool_call["id"],
     "content": result,
 }
 tool_messages.append(tool_message)
-# for tool_call in tool_calls: end of first iteration 
+# for tool_call in tool_calls: end of first and only iteration  
+
+# COMMAND ----------
 
 assistant_message_dict = assistant_message.copy()
 del assistant_message_dict["content"]
@@ -250,6 +291,13 @@ messages = (
     + tool_messages
 )
 # end while i < max_iter: for first iteration
+
+# COMMAND ----------
+
+import pprint
+print(pprint.pformat(messages, indent=1, width=200, depth=5, compact=True, sort_dicts=False, underscore_numbers=False))
+
+# COMMAND ----------
 
 # while i < max_iter: second iteration
 
@@ -280,16 +328,27 @@ inputs = {
 #         **llm_options,
 #     }
 
-    # Use the traced_create to make the prediction
+# COMMAND ----------
+
+print(pprint.pformat(inputs, indent=1, width=200, depth=5, compact=True, sort_dicts=False, underscore_numbers=False))
+
+# COMMAND ----------
+
+# Use the traced_create to make the prediction
 response = traced_create(
         endpoint=endpoint_name,
         inputs=inputs,
     )
 # chat_completion end
 
-# print(response)
+# COMMAND ----------
+
+print(pprint.pformat(response, indent=1, width=200, depth=5, compact=True, sort_dicts=False, underscore_numbers=False))
+
+# COMMAND ----------
+
 assistant_message = response.choices[0]["message"]
-print(assistant_message)
+
 tool_calls = assistant_message.get("tool_calls")
 print(tool_calls)
 
@@ -314,6 +373,45 @@ rv = {
             "messages": messages_log_with_tool_calls,
         }
 # end of predict 
+
+# COMMAND ----------
+
+print(pprint.pformat(rv, indent=1, width=200, depth=5, compact=True, sort_dicts=False, underscore_numbers=False))
+
+# COMMAND ----------
+
+# # Load the Agent
+# agent = AgentWithRetriever()
+
+# # Example for testing multiple turns of converastion
+
+# # 1st turn of converastion
+# first_turn_input = {
+#     "messages": [
+#         {"role": "user", "content": f"what was walmarts revenue in 2019?"},
+#     ]
+# }
+
+# response = agent.predict(model_input=first_turn_input)
+
+# # 2nd turn of converastion
+# new_messages = response["messages"]
+# new_messages.append({"role": "user", "content": f"how do i use it?"})
+# # print(type(new_messages))
+# second_turn_input = {"messages": new_messages}
+# response = agent.predict(model_input=second_turn_input)
+# print(response["content"])
+
+# COMMAND ----------
+
+# agent.retriever_tool.similarity_search("what is walmart's revenue in 2019?")
+# agent.get_messages_array(model_input=first_turn_input)
+# agent.tool_functions.get("retrieve_documents")
+# agent.chat_history # None
+# agent.config._read_config()
+# agent.config.get("llm_config").get("llm_system_prompt_template")
+
+# agent.recursively_call_and_run_tools(max_iter=3,messages=first_turn_input["messages"])
 
 # COMMAND ----------
 

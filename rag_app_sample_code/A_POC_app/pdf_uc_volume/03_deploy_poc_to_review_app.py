@@ -16,6 +16,10 @@ w = WorkspaceClient()
 
 # COMMAND ----------
 
+mlflow.__version__
+
+# COMMAND ----------
+
 # MAGIC %run ./00_config
 
 # COMMAND ----------
@@ -45,7 +49,7 @@ with mlflow.start_run(run_name=POC_CHAIN_RUN_NAME):
         input_example=rag_chain_config[
             "input_example"
         ],  # Save the chain's input schema.  MLflow will execute the chain before logging & capture it's output schema.
-        example_no_conversion=True,  # Required by MLflow to use the input_example as the chain's schema
+        # example_no_conversion=True,  # Required by MLflow to use the input_example as the chain's schema
         extra_pip_requirements=["databricks-agents"] # TODO: Remove this
     )
 
