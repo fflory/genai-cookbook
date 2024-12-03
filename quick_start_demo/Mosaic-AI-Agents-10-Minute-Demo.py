@@ -56,15 +56,15 @@ user_name = w.current_user.me().user_name.split("@")[0].replace(".", "")
 
 # UC Catalog & Schema where outputs tables/indexs are saved
 # If this catalog/schema does not exist, you need create catalog/schema permissions.
-UC_CATALOG = f'{user_name}_catalog'
-UC_SCHEMA = f'rag_{user_name}'
+UC_CATALOG = f'felixflory'
+UC_SCHEMA = f'rag_10min_demo'
 
 # UC Model name where the POC chain is logged
 UC_MODEL_NAME = f"{UC_CATALOG}.{UC_SCHEMA}.{user_name}_agent_quick_start"
 
 # Vector Search endpoint where index is loaded
 # If this does not exist, it will be created
-VECTOR_SEARCH_ENDPOINT = f'{user_name}_vector_search'
+VECTOR_SEARCH_ENDPOINT = f'one-env-shared-endpoint-11'
 
 # COMMAND ----------
 
@@ -116,8 +116,8 @@ validate_vector_search_endpoint_exists(VECTOR_SEARCH_ENDPOINT)
 # COMMAND ----------
 
 # UC locations to store the chunked documents & index
-CHUNKS_DELTA_TABLE = f"`{UC_CATALOG}`.`{UC_SCHEMA}`.databricks_docs_chunked2"
-CHUNKS_VECTOR_INDEX = f"`{UC_CATALOG}`.`{UC_SCHEMA}`.databricks_docs_chunked_index2"
+CHUNKS_DELTA_TABLE = f"`{UC_CATALOG}`.`{UC_SCHEMA}`.databricks_docs_chunked2".replace("`", "")
+CHUNKS_VECTOR_INDEX = f"`{UC_CATALOG}`.`{UC_SCHEMA}`.databricks_docs_chunked_index2".replace("`", "")
 
 # COMMAND ----------
 
@@ -134,7 +134,7 @@ vsc = VectorSearchClient(disable_notice=True)
 
 # Load the chunked data to Delta Table & enable change-data capture to allow the table to sync to Vector Search
 chunked_docs_df = spark.read.parquet(
-    f"file:{CURRENT_FOLDER}/chunked_databricks_docs.snappy.parquet"
+    "/Volumes/felixflory/rag_10min_demo/data/chunked_databricks_docs.snappy.parquet"
 )
 chunked_docs_df.write.format("delta").saveAsTable(CHUNKS_DELTA_TABLE)
 spark.sql(
@@ -180,7 +180,7 @@ index = vsc.create_delta_sync_index_and_wait(
 # COMMAND ----------
 
 chain_config = {
-    "llm_model_serving_endpoint_name": "databricks-dbrx-instruct",  # the foundation model we want to use
+    "llm_model_serving_endpoint_name": "databricks-meta-llama-3-1-70b-instruct",  # the foundation model we want to use
     "vector_search_endpoint_name": VECTOR_SEARCH_ENDPOINT,  # Endoint for vector search
     "vector_search_index": f"{CHUNKS_VECTOR_INDEX}",
     "llm_prompt_template": """You are an assistant that answers questions. Use the following pieces of retrieved context to answer the question. Some pieces of context may be irrelevant, in which case you should not use them to form the answer.\n\nContext: {context}""", # LLM Prompt template
