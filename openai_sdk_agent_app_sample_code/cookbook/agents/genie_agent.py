@@ -6,9 +6,9 @@
 
 # COMMAND ----------
 
-# # # If running this notebook by itself, uncomment these.
-# %pip install --upgrade -qqqq mlflow databricks-sdk tabulate tiktoken
-# dbutils.library.restartPython()
+# # If running this notebook by itself, uncomment these.
+%pip install --upgrade -qqqq mlflow databricks-sdk tabulate tiktoken
+dbutils.library.restartPython()
 
 # COMMAND ----------
 
@@ -317,8 +317,8 @@ class GenieAPIWrapper:
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Agent
+
 class GenieAgent(mlflow.pyfunc.PythonModel):
     """
     Class representing an Agent that does function-calling with tools using OpenAI SDK
