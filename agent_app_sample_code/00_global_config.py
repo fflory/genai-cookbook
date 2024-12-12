@@ -39,8 +39,8 @@ AGENT_NAME = "my_agent_app"
 # UC Catalog & Schema where outputs tables/indexes are saved
 # By default, will use the current user name to create a unique UC catalog/schema & vector search endpoint
 # If this catalog/schema does not exist, you need create catalog/schema permissions.
-UC_CATALOG = f"{user_name}_catalog"
-UC_SCHEMA = f"cookbook"
+UC_CATALOG = f"felixflory"
+UC_SCHEMA = f"felix_dec"
 
 ## UC Model name where the Agent's model is logged
 UC_MODEL_NAME = f"{UC_CATALOG}.{UC_SCHEMA}.{AGENT_NAME}"

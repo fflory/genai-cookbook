@@ -1,0 +1,14 @@
+name: databricks_connect
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+    - python=3.11
+    - ipykernel
+    - pandas
+    - pytest
+    - jupyter
+    - pip
+    - pip:
+      - databricks-connect==15.1.*
+      - mlflow
