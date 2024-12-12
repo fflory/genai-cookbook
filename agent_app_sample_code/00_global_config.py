@@ -14,6 +14,17 @@
 
 # COMMAND ----------
 
+try:
+    print(spark.version)
+except NameError:
+    print("No SparkSession found, creating a new one...")
+    from databricks.connect import DatabricksSession
+    
+    # uses DATABRICKS_CONFIG_PROFILE environment
+    spark = DatabricksSession.builder.validateSession(True).getOrCreate()
+
+# COMMAND ----------
+
 user_email = spark.sql("SELECT current_user() as username").collect()[0].username
 user_name = user_email.split("@")[0].replace(".", "").lower()[:35]
 
@@ -40,7 +51,7 @@ AGENT_NAME = "my_agent_app"
 # By default, will use the current user name to create a unique UC catalog/schema & vector search endpoint
 # If this catalog/schema does not exist, you need create catalog/schema permissions.
 UC_CATALOG = f"felixflory"
-UC_SCHEMA = f"felix_dec"
+UC_SCHEMA = f"genai_cookbook_dec_2024"
 
 ## UC Model name where the Agent's model is logged
 UC_MODEL_NAME = f"{UC_CATALOG}.{UC_SCHEMA}.{AGENT_NAME}"
@@ -129,3 +140,5 @@ except NotFound as e:
         raise ValueError(
             "Unity Catalog Schema `{UC_CATALOG}.{UC_SCHEMA}` does not exist."
         )
+
+# COMMAND ----------
