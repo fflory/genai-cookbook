@@ -33,3 +33,20 @@ except NameError:
 ```
 
 # start with [agent_app_sample_code/00_global_config.py](agent_app_sample_code/00_global_config.py)
+
+
+# Data Sources 
+
+- `field_ai_examples.alphaleger.sec_rag_docs`
+- `felixflory.rag_felixflory.financebench`
+  - `felixflory.rag_felixflory.financebench_eval_parquet`
+
+## copy data commands
+
+```python
+dbutils.fs.cp("/Volumes/field_ai_examples/alphaleger/financebench", "/Volumes/felixflory/genai_cookbook_dec_2024/financebench", recurse=True)
+spark.sql("""
+    CREATE TABLE felixflory.genai_cookbook_dec_2024.managed_evaluation_set
+    AS SELECT * FROM field_ai_examples.alphaleger.managed_evaluation_set
+""")
+```
