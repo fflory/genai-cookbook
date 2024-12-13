@@ -44,9 +44,9 @@ except NameError:
 ## copy data commands
 
 ```python
-dbutils.fs.cp("/Volumes/field_ai_examples/alphaleger/financebench", "/Volumes/felixflory/genai_cookbook_dec_2024/financebench", recurse=True)
+dbutils.fs.cp("/Volumes/field_ai_examples/alphaleger/financebench", "/Volumes/felixflory/financebench/financebench", recurse=True)
 spark.sql("""
-    CREATE TABLE felixflory.genai_cookbook_dec_2024.managed_evaluation_set
+    CREATE TABLE felixflory.financebench.financebench_agent_app_evaluation_set
     AS SELECT * FROM field_ai_examples.alphaleger.managed_evaluation_set
 """)
 ```
