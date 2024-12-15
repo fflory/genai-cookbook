@@ -15,6 +15,15 @@ validate the authentication
 databricks auth profiles
 ```
 
+# Environment variable (.env file)
+
+see [.env](.env) which is [.gitignore](.gitignore)d
+```bash
+DATABRICKS_CONFIG_PROFILE=E2DEMOSERVERLESS
+PYTHONPATH=/:${PYTHONPATH}
+MLFLOW_TRACKING_URI=databricks
+```
+
 # Get a spark session
 
 ```python
