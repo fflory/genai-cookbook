@@ -48,6 +48,7 @@ dbutils.library.restartPython()
 # COMMAND ----------
 
 # MAGIC %run ./00_global_config
+from global_config import *
 
 # COMMAND ----------
 
@@ -111,13 +112,15 @@ EMBEDDING_MODEL_ENDPOINT = "databricks-bge-large-en"
 
 # MAGIC %run ./validators/validate_data_pipeline_config
 
+import validators.validate_data_pipeline_config
+
 # COMMAND ----------
 
-create_or_check_volume_path(SOURCE_UC_VOLUME)
-create_or_check_vector_search_endpoint(VECTOR_SEARCH_ENDPOINT)
-validate_embedding_endpoint(
-    endpoint_name=EMBEDDING_MODEL_ENDPOINT, task_type="llm/v1/embeddings"
-)
+# create_or_check_volume_path(SOURCE_UC_VOLUME)
+# create_or_check_vector_search_endpoint(VECTOR_SEARCH_ENDPOINT)
+# validate_embedding_endpoint(
+#     endpoint_name=EMBEDDING_MODEL_ENDPOINT, task_type="llm/v1/embeddings"
+# )
 
 # COMMAND ----------
 

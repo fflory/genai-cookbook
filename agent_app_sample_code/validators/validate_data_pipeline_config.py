@@ -14,6 +14,12 @@ import os
 from databricks.sdk.service.compute import DataSecurityMode
 from pyspark.sql import SparkSession
 
+# add parent directory to sys.path
+import sys
+sys.path.append(os.path.dirname("../"))
+
+from global_config import *
+
 w = WorkspaceClient()
 browser_url = du.get_browser_hostname()
 
@@ -22,7 +28,10 @@ browser_url = du.get_browser_hostname()
 # Check if source location exists
 import os
 
-if os.path.isdir(SOURCE_UC_VOLUME):
+# if os.path.isdir(SOURCE_UC_VOLUME):
+#     print(f"PASS: `{SOURCE_UC_VOLUME}` exists")
+
+if w.dbfs.exists(SOURCE_UC_VOLUME):
     print(f"PASS: `{SOURCE_UC_VOLUME}` exists")
 else:
     print(f"`{SOURCE_UC_VOLUME}` does NOT exist, trying to create")
@@ -165,3 +174,5 @@ def create_or_check_vector_search_endpoint(vector_search_endpoint: str):
     )
 
     print(f"PASS: Vector Search endpoint `{vector_search_endpoint}` exists")
+
+# COMMAND ----------
