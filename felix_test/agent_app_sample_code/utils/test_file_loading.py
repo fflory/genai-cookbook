@@ -1,0 +1,1 @@
+one_row = raw_files_df.take(1)[0]

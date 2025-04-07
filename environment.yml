@@ -8,7 +8,19 @@ dependencies:
     - pandas
     - pytest
     - jupyter
+    - pydantic
+    - databricks-sdk
+    - pypdf==4.1.0  # PDF parsing
+    - markdownify==0.12.1  # HTML parsing
+    - transformers==4.41.1
+    - tiktoken==0.7.0
+    - langchain-text-splitters=0.2.0 # get_recursive_character_text_splitter
     - pip
     - pip:
       - databricks-connect==15.1.*
+      - databricks-vectorsearch
+      - databricks-agents
       - mlflow
+      - mlflow-skinny # For agent & data pipeline code
+      - torch==2.3.0
+      - pypandoc_binary==1.13  # DOCX parsing
